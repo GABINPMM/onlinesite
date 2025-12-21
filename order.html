@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INSHATTA | Commande</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Réutilisation des variables de style de index.html */
+        :root {
+            --color-bg: #ffffff;
+            --color-text: #000000;
+            --color-accent: #FF00CC; /* Rose Néon */
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header simplifié pour le retour */
+        header { padding: 2rem 5%; display: flex; align-items: center; }
+        .back-link { text-decoration: none; color: #000; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; }
+        .back-link::before { content: '←'; margin-right: 10px; font-size: 1.2rem; color: var(--color-accent); }
+        .logo-small { margin-left: auto; font-family: var(--font-display); font-weight: 800; color: var(--color-accent); }
+
+        /* Section du formulaire */
+        .order-section {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5% 2rem;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 4rem);
+            text-transform: uppercase;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        h1 span { color: var(--color-accent); }
+
+        /* Style du formulaire */
+        #orderForm {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group { display: flex; flex-direction: column; }
+        
+        label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Inputs stylisés "luxe minimaliste" */
+        input {
+            padding: 1rem;
+            border: none;
+            border-bottom: 2px solid #eee; /* Ligne grise par défaut */
+            background: transparent;
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+            border-radius: 0; /* Important pour mobile */
+        }
+
+        /* Ligne rose au focus */
+        input:focus {
+            border-bottom-color: var(--color-accent);
+        }
+
+        /* Bouton de soumission */
+        .submit-btn {
+            margin-top: 2rem;
+            padding: 1.2rem;
+            background-color: var(--color-accent);
+            color: #fff;
+            border: none;
+            font-family: var(--font-display);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #000;
+            box-shadow: 0 10px 30px rgba(255, 0, 204, 0.3);
+        }
+        
+        /* États du bouton pendant l'envoi */
+        .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        /* Messages de succès/erreur */
+        #formFeedback {
+            margin-top: 2rem;
+            text-align: center;
+            font-weight: 600;
+            min-height: 1.5em;
+        }
+        .success-message { color: var(--color-accent); }
+        .error-message { color: red; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="back-link">Retour</a>
+        <div class="logo-small">INSHATTA.</div>
+    </header>
+
+    <section class="order-section">
+        <h1>Finalise ta <span>commande</span></h1>
+
+        <form id="orderForm">
+            <div class="form-group">
+                <label for="nom">Nom *</label>
+                <input type="text" id="nom" name="nom" required placeholder="Ton nom de famille">
+            </div>
+
+            <div class="form-group">
+                <label for="prenom">Prénom *</label>
+                <input type="text" id="prenom" name="prenom" required placeholder="Ton prénom">
+            </div>
+            
+            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                     <label for="pseudo">Pseudo Maillot</label>
+                     <input type="text" id="pseudo" name="pseudo" placeholder="Ex: SHATTA KING">
+                </div>
+                <div>
+                     <label for="numero">Numéro Maillot</label>
+                     <input type="number" id="numero" name="numero" placeholder="Ex: 10">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="telephone">Téléphone *</label>
+                <input type="tel" id="telephone" name="telephone" required placeholder="Pour le suivi de livraison">
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">VALIDER LA COMMANDE (40 €)</button>
+        </form>
+
+        <div id="formFeedback"></div>
+    </section>
+
+    <script>
+        // --- CONFIGURATION ---
+        // COLLE L'URL DE TON SCRIPT GOOGLE ICI ENTRE LES GUILLEMETS
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzHTwFmL-xYfRzRwBM8ldnlShowqfNrh9IX12ZCLQpIOUdsqub97pRV80b7d9c9X-5fQg/exec'; 
+        // Exemple à quoi ça ressemble : 'https://script.google.com/macros/s/AKfycbx.../exec'
+
+        const form = document.forms['orderForm'];
+        const submitBtn = document.getElementById('submitBtn');
+        const feedback = document.getElementById('formFeedback');
+
+        form.addEventListener('submit', e => {
+            // 1. Empêche le rechargement de la page classique
+            e.preventDefault();
+            
+            // 2. Change l'état du bouton pendant l'envoi
+            submitBtn.disabled = true;
+            submitBtn.innerText = "ENVOI EN COURS...";
+            feedback.innerHTML = "";
+
+            // 3. Envoie les données au script Google via fetch()
+            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+                .then(response => {
+                    // 4. Succès !
+                    feedback.innerHTML = "<span class='success-message'>COMMANDE VALIDÉE ! BIENVENUE DANS LE MOUVEMENT.</span>";
+                    form.reset(); // Vide le formulaire
+                    submitBtn.innerText = "COMMANDE ENVOYÉE";
+                    // Optionnel : rediriger après quelques secondes
+                    // setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+                })
+                .catch(error => {
+                    // 5. Erreur
+                    feedback.innerHTML = "<span class='error-message'>Erreur lors de l'envoi. Vérifie ta connexion.</span>";
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "RÉESSAYER";
+                    console.error('Error!', error.message);
+                });
+        });
+    </script>
+</body>
+</html>

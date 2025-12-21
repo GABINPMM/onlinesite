@@ -4,226 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>INSHATTA | PINK EDITION</title>
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-
     <style>
         /* --- RESET & VARIABLES --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         :root {
-            /* INVERSION : Fond Blanc / Texte Noir */
             --color-bg: #ffffff; 
             --color-text: #000000;
-            
-            /* LE ROSE INSHATTA (Plus présent) */
-            --color-accent: #FF00CC; 
-            --color-accent-soft: #ffe5fa; /* Rose très pâle pour les fonds subtils */
-            
+            --color-accent: #FF00CC; /* Rose Néon */
+            --color-accent-soft: #ffe5fa;
             --font-display: 'Syne', sans-serif;
             --font-body: 'Inter', sans-serif;
             --easing: cubic-bezier(0.22, 1, 0.36, 1);
         }
-
-        /* Personnalisation de la sélection de texte en ROSE */
-        ::selection {
-            background: var(--color-accent);
-            color: #fff;
-        }
-
-        body {
-            background-color: var(--color-bg);
-            color: var(--color-text);
-            font-family: var(--font-body);
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* --- PRELOADER (Toujours Rose, mais plus intense) --- */
-        #preloader {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100vh;
-            background-color: var(--color-accent);
-            z-index: 9999;
-            display: flex;
-            justify-content: center; align-items: center;
-            transition: transform 0.8s var(--easing);
-        }
+        ::selection { background: var(--color-accent); color: #fff; }
+        body { background-color: var(--color-bg); color: var(--color-text); font-family: var(--font-body); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        
+        /* --- PRELOADER --- */
+        #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: var(--color-accent); z-index: 9999; display: flex; justify-content: center; align-items: center; transition: transform 0.8s var(--easing); }
         .emoji-dance { font-size: 5rem; animation: bounce 0.6s infinite alternate; }
         @keyframes bounce { to { transform: translateY(-20px) scale(1.1); } }
 
-        /* --- TYPOGRAPHY --- */
+        /* --- TYPOGRAPHY & UI --- */
         h1, h2, h3 { font-family: var(--font-display); text-transform: uppercase; line-height: 0.9; }
-        
-        /* Titres avec contour rose si besoin ou couleur pleine */
-        .pink-text { color: var(--color-accent); }
-
-        /* --- UI ELEMENTS --- */
-        /* Bouton PLEIN en rose maintenant pour plus d'impact */
-        .btn {
-            display: inline-block;
-            padding: 1.2rem 3.5rem;
-            background-color: var(--color-accent); /* Fond Rose */
-            color: #fff; /* Texte Blanc */
-            font-family: var(--font-display);
-            font-weight: 800;
-            text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn:hover {
-            background-color: #000; /* Devient noir au survol pour le contraste */
-            color: var(--color-accent);
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(255, 0, 204, 0.3);
-        }
+        .btn { display: inline-block; padding: 1.2rem 3.5rem; background-color: var(--color-accent); color: #fff; font-family: var(--font-display); font-weight: 800; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border: none; }
+        .btn:hover { background-color: #000; color: var(--color-accent); transform: scale(1.05); box-shadow: 0 10px 30px rgba(255, 0, 204, 0.3); }
 
         /* --- HEADER --- */
-        header {
-            position: fixed; top: 0; width: 100%; padding: 2rem 5%;
-            display: flex; justify-content: space-between; align-items: center;
-            z-index: 100;
-        }
+        header { position: fixed; top: 0; width: 100%; padding: 2rem 5%; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        .logo { font-family: var(--font-display); font-weight: 800; font-size: 2rem; color: var(--color-accent); }
+        nav a { font-weight: 600; color: #000; text-decoration: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
 
-        .logo {
-            font-family: var(--font-display);
-            font-weight: 800;
-            font-size: 2rem;
-            color: var(--color-accent); /* Logo ROSE */
-        }
-        
-        nav span { font-weight: 600; color: #000; }
-
-        /* --- HERO SECTION (Modifiée pour fond blanc) --- */
-        .hero {
-            height: 100vh; width: 100%;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            position: relative; overflow: hidden;
-            background: radial-gradient(circle at 50% 50%, #fff0fa 0%, #ffffff 60%); /* Léger halo rose au centre */
-        }
-
-        .hero-title {
-            font-size: clamp(3rem, 13vw, 14rem); /* ENCORE PLUS GROS */
-            text-align: center;
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1; /* DERRIERE */
-            white-space: nowrap;
-            width: 100%;
-            line-height: 0.8;
-        }
-
-        /* Le texte du haut en Noir, celui du bas en ROSE */
+        /* --- HERO SECTION --- */
+        .hero { height: 100vh; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; overflow: hidden; background: radial-gradient(circle at 50% 50%, #fff0fa 0%, #ffffff 60%); }
+        .hero-title { font-size: clamp(3rem, 13vw, 14rem); text-align: center; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1; white-space: nowrap; width: 100%; line-height: 0.8; }
         .hero-title .line-1 { display: block; color: #000; }
         .hero-title .line-2 { display: block; color: var(--color-accent); }
-
-        .hero-img-container {
-            position: relative;
-            z-index: 2; /* DEVANT */
-            width: 45vw; /* Un peu plus large */
-            height: 65vh;
-            opacity: 0;
-            animation: popIn 1.2s var(--easing) 0.5s forwards;
-        }
-
-        .hero-img-container img {
-            width: 100%; height: 100%; object-fit: contain;
-            /* Ombre portée plus douce pour le fond blanc */
-            filter: drop-shadow(0 30px 40px rgba(255, 0, 204, 0.15)); 
-        }
-
-        @keyframes popIn {
-            from { opacity: 0; transform: scale(0.8) translateY(50px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
+        .hero-img-container { position: relative; z-index: 2; width: 45vw; height: 65vh; opacity: 0; animation: popIn 1.2s var(--easing) 0.5s forwards; }
+        .hero-img-container img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 30px 40px rgba(255, 0, 204, 0.15)); }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.8) translateY(50px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
         /* --- SHOWCASE --- */
-        .showcase {
-            padding: 10vh 5%;
-            display: grid; grid-template-columns: repeat(12, 1fr); gap: 2rem;
-            align-items: center;
-        }
-
-        .visual-block {
-            grid-column: span 12; height: 70vh;
-            position: relative; overflow: hidden;
-            background-color: #f5f5f5; /* Gris très clair */
-        }
+        .showcase { padding: 10vh 5%; display: grid; grid-template-columns: repeat(12, 1fr); gap: 2rem; align-items: center; }
+        .visual-block { grid-column: span 12; height: 70vh; position: relative; overflow: hidden; background-color: #f5f5f5; }
         @media (min-width: 768px) { .visual-block.half { grid-column: span 6; height: 60vh; } }
-
         .visual-block img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s ease; }
         .visual-block:hover img { transform: scale(1.05); }
-
-        /* Bloc de texte technique : Fond Rose pâle */
-        .tech-block {
-            background-color: var(--color-accent-soft) !important;
-            color: #000;
-            border: 1px solid var(--color-accent);
-        }
+        .tech-block { background-color: var(--color-accent-soft) !important; color: #000; border: 1px solid var(--color-accent); }
 
         /* --- DUALITY --- */
         .duality { padding: 10vh 10%; display: flex; flex-direction: column; gap: 10vh; }
         .story-row { display: flex; flex-direction: column; gap: 3rem; align-items: center; }
-        
-        @media (min-width: 900px) {
-            .story-row { flex-direction: row; justify-content: space-between; }
-            .story-row.reverse { flex-direction: row-reverse; }
-            .story-text { width: 40%; }
-            .story-img { width: 50%; }
-        }
-
+        @media (min-width: 900px) { .story-row { flex-direction: row; justify-content: space-between; } .story-row.reverse { flex-direction: row-reverse; } .story-text { width: 40%; } .story-img { width: 50%; } }
         .story-text h2 { font-size: 3.5rem; margin-bottom: 1rem; color: #000; }
-        .story-text h2 span { color: var(--color-accent); } /* Mots clés en rose */
+        .story-text h2 span { color: var(--color-accent); }
         .story-text p { font-size: 1.1rem; line-height: 1.6; color: #444; font-weight: 400; }
-
-        .story-img img { width: 100%; transition: transform 0.5s ease; box-shadow: 20px 20px 0px var(--color-accent); /* Ombre graphique rose solide */ }
+        .story-img img { width: 100%; transition: transform 0.5s ease; box-shadow: 20px 20px 0px var(--color-accent); }
         .story-img:hover img { transform: translate(-5px, -5px); box-shadow: 25px 25px 0px var(--color-accent); }
 
-        /* --- CTA SECTION (FULL ROSE) --- */
-        .cta-section {
-            height: 80vh;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
-            background-color: var(--color-accent); /* FOND ROSE COMPLET */
-            color: #fff;
-        }
-
+        /* --- CTA SECTION --- */
+        .cta-section { height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background-color: var(--color-accent); color: #fff; }
         .cta-section h2 { color: #fff; font-size: 4vw; }
-        .big-price { font-family: var(--font-display); font-size: 8rem; margin: 1rem 0; color: #000; /* Prix en noir sur fond rose */ }
-        
-        /* Bouton inversé pour le footer */
-        .btn-white {
-            background-color: #000; color: #fff; border: none;
-            padding: 1.5rem 4rem; font-size: 1.2rem;
-        }
+        .big-price { font-family: var(--font-display); font-size: 8rem; margin: 1rem 0; color: #000; }
+        .btn-white { background-color: #000; color: #fff; border: none; padding: 1.5rem 4rem; font-size: 1.2rem; }
         .btn-white:hover { background-color: #fff; color: var(--color-accent); }
 
-        /* --- ANIMATIONS --- */
+        /* --- ANIMATIONS & HELPERS --- */
         .reveal { opacity: 0; transform: translateY(50px); transition: all 1s var(--easing); }
         .reveal.active { opacity: 1; transform: translateY(0); }
-
-        /* Placeholders */
         .ph-box { width: 100%; height: 100%; background: #eee; display: flex; justify-content: center; align-items: center; color: #999; border: 2px solid var(--color-accent); }
-
     </style>
 </head>
 <body>
-
-    <div id="preloader">
-        <div class="emoji-dance">💃</div> </div>
+    <div id="preloader"><div class="emoji-dance">💃</div></div>
 
     <header>
         <div class="logo">INSHATTA.</div>
-        <nav>
-            <span>SHOP</span>
-        </nav>
+        <nav><a href="order.html">COMMANDER</a></nav>
     </header>
 
     <section class="hero">
@@ -231,12 +90,10 @@
             <span class="line-1 reveal">UN MAILLOT</span>
             <span class="line-2 reveal">UNE IDENTITÉ</span>
         </h1>
-        
         <div class="hero-img-container">
             <img src="maillot-front.jpg" alt="Maillot INSHATTA" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
             <div class="ph-box" style="display:none;">IMAGE FACE</div>
         </div>
-
         <div style="position: absolute; bottom: 2rem; color: var(--color-accent); font-weight: bold; letter-spacing: 2px; animation: bounce 2s infinite;">SCROLL DOWN</div>
     </section>
 
@@ -245,16 +102,14 @@
             <img src="maillot-detail.jpg" alt="Détail" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
             <div class="ph-box" style="display:none;">IMAGE DÉTAIL</div>
         </div>
-        
         <div class="visual-block half reveal">
             <img src="maillot-back.jpg" alt="Dos" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
             <div class="ph-box" style="display:none;">IMAGE DOS</div>
         </div>
-        
         <div class="visual-block half tech-block reveal" style="display:flex; align-items:center; justify-content:center; padding: 3rem;">
             <div>
-                <h3 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--color-accent);">FLORAL<br>& TECH</h3>
-                <p>Le motif floral n'est pas qu'un imprimé. C'est une déclaration. Mélange audacieux de nature et de culture urbaine sur un tissu technique haute performance.</p>
+                <h3 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--color-accent);">FLORAL & TECH</h3>
+                <p>Mélange audacieux de nature et de culture urbaine sur un tissu technique haute performance.</p>
             </div>
         </div>
     </section>
@@ -262,18 +117,18 @@
     <section class="duality">
         <div class="story-row reveal">
             <div class="story-text">
-                <h2>MODE <span>ON</span></h2>
-                <p>Le vert est là pour surprendre, mais le <strong>ROSE</strong> domine. C'est la couleur de ceux qui osent. Coupe ajustée pour la rue, design fait pour être vu.</p>
+                <h2>ESPRIT <span>SHATTA</span></h2>
+                <p>Plus qu'une couleur, le rose est notre étendard. Incarne le mouvement Shatta : audacieux, vibrant et sans compromis. Ce maillot n'est pas fait pour se cacher, il est fait pour briller.</p>
             </div>
             <div class="story-img">
-                <img src="maillot-front.jpg" alt="Lifestyle" onerror="this.src='https://placehold.co/600x400/ffe5fa/FF00CC?text=Inshatta+Mode'">
+                <img src="maillot-front.jpg" alt="Lifestyle" onerror="this.src='https://placehold.co/600x400/ffe5fa/FF00CC?text=Inshatta+Shatta'">
             </div>
         </div>
 
         <div class="story-row reverse reveal">
             <div class="story-text">
                 <h2>SPORT <span>ON</span></h2>
-                <p>40 euros. C'est le prix de l'exception sans se ruiner. Tissu respirant, liberté de mouvement totale. </p>
+                <p>40 euros. C'est le prix de l'exception sans se ruiner. Tissu respirant, liberté de mouvement totale.</p>
             </div>
             <div class="story-img">
                 <img src="maillot-back.jpg" alt="Sport" onerror="this.src='https://placehold.co/600x400/ffe5fa/FF00CC?text=Inshatta+Sport'">
@@ -284,36 +139,15 @@
     <section class="cta-section">
         <h2 class="reveal">TON IDENTITÉ T'ATTEND</h2>
         <div class="big-price reveal">40 €</div>
-        <a href="#" class="btn btn-white reveal">COMMANDER</a>
+        <a href="order.html" class="btn btn-white reveal">COMMANDER</a>
         <p style="margin-top: 2rem; font-weight: 600; letter-spacing: 1px;" class="reveal">STOCK ILLIMITÉ. LIVRAISON RAPIDE.</p>
     </section>
 
     <script>
-        // Loader
-        window.addEventListener('load', () => {
-            setTimeout(() => { document.getElementById('preloader').style.transform = 'translateY(-100%)'; }, 800);
-        });
-
-        // Animations Scroll
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) entry.target.classList.add('active');
-            });
-        }, { threshold: 0.1 });
+        window.addEventListener('load', () => { setTimeout(() => { document.getElementById('preloader').style.transform = 'translateY(-100%)'; }, 800); });
+        const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); }); }, { threshold: 0.1 });
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-        // Parallaxe Hero (Inverse : texte bouge moins vite que image)
-        window.addEventListener('scroll', () => {
-            const y = window.pageYOffset;
-            const title = document.querySelector('.hero-title');
-            const img = document.querySelector('.hero-img-container');
-            if(y < window.innerHeight) {
-                // Le titre descend doucement
-                title.style.transform = `translate(-50%, calc(-50% + ${y * 0.3}px))`;
-                // L'image monte un peu pour créer le croisement
-                img.style.transform = `translateY(-${y * 0.1}px)`;
-            }
-        });
+        window.addEventListener('scroll', () => { const y = window.pageYOffset; const title = document.querySelector('.hero-title'); const img = document.querySelector('.hero-img-container'); if(y < window.innerHeight) { title.style.transform = `translate(-50%, calc(-50% + ${y * 0.3}px))`; img.style.transform = `translateY(-${y * 0.1}px)`; } });
     </script>
 </body>
 </html>
