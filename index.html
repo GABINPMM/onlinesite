@@ -3,593 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INSHATTA | Un maillot. Une identité.</title>
-    <meta name="description" content="Découvrez le maillot hybride INSHATTA. Disponible maintenant. 40€.">
+    <title>INSHATTA | PINK EDITION</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* =========================================
-           RESET & VARIABLES
-           ========================================= */
+        /* --- RESET & VARIABLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         :root {
-            --bg-color: #050505;
-            --text-color: #ffffff;
-            --accent-color: #FF007F; /* Rose Néon Électrique puissant */
-            --accent-glow: rgba(255, 0, 127, 0.6);
-            --font-main: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-            --transition-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            --spacing-container: 8vw;
+            /* INVERSION : Fond Blanc / Texte Noir */
+            --color-bg: #ffffff; 
+            --color-text: #000000;
+            
+            /* LE ROSE INSHATTA (Plus présent) */
+            --color-accent: #FF00CC; 
+            --color-accent-soft: #ffe5fa; /* Rose très pâle pour les fonds subtils */
+            
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --easing: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-            font-size: 16px;
+        /* Personnalisation de la sélection de texte en ROSE */
+        ::selection {
+            background: var(--color-accent);
+            color: #fff;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: var(--font-main);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-body);
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
-            cursor: default;
         }
 
-        /* Prevent scroll during loading */
-        body.is-loading {
-            overflow: hidden;
-        }
-
-        /* =========================================
-           LOADER
-           ========================================= */
-        #site-loader {
+        /* --- PRELOADER (Toujours Rose, mais plus intense) --- */
+        #preloader {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--accent-color);
+            top: 0; left: 0; width: 100%; height: 100vh;
+            background-color: var(--color-accent);
             z-index: 9999;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            transition: transform 0.8s cubic-bezier(0.8, 0, 0.2, 1);
+            justify-content: center; align-items: center;
+            transition: transform 0.8s var(--easing);
         }
+        .emoji-dance { font-size: 5rem; animation: bounce 0.6s infinite alternate; }
+        @keyframes bounce { to { transform: translateY(-20px) scale(1.1); } }
 
-        #site-loader.loaded {
-            transform: translateY(-100%);
-        }
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3 { font-family: var(--font-display); text-transform: uppercase; line-height: 0.9; }
+        
+        /* Titres avec contour rose si besoin ou couleur pleine */
+        .pink-text { color: var(--color-accent); }
 
-        .loader-content {
-            text-align: center;
-        }
-
-        .dancing-emoji {
-            font-size: 5rem;
-            display: inline-block;
-            animation: danceBounce 0.8s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
-        }
-
-        .loader-text {
-            margin-top: 1rem;
-            font-weight: 900;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            font-size: 1.2rem;
-        }
-
-        @keyframes danceBounce {
-            from { transform: translateY(0) rotate(-5deg); }
-            to { transform: translateY(-30px) rotate(5deg); }
-        }
-
-
-        /* =========================================
-           TYPOGRAPHY
-           ========================================= */
-        h1, h2, h3, h4 {
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: -0.03em;
-            line-height: 1;
-        }
-
-        h1 {
-            font-size: clamp(3.5rem, 11vw, 9rem);
-        }
-
-        h2 {
-            font-size: clamp(2rem, 5vw, 4rem);
-            margin-bottom: 2rem;
-        }
-
-        p {
-            font-size: 1.15rem;
-            line-height: 1.6;
-            color: #cccccc;
-            font-weight: 400;
-            max-width: 600px;
-        }
-
-        .text-accent {
-            color: var(--accent-color);
-            text-shadow: 0 0 15px var(--accent-glow); /* Petit effet néon sur le texte */
-        }
-
-        /* =========================================
-           UI COMPONENTS
-           ========================================= */
-        /* Bouton Style "Awwwards" */
+        /* --- UI ELEMENTS --- */
+        /* Bouton PLEIN en rose maintenant pour plus d'impact */
         .btn {
             display: inline-block;
             padding: 1.2rem 3.5rem;
-            border: 2px solid var(--accent-color);
-            background: transparent;
-            color: var(--accent-color);
+            background-color: var(--color-accent); /* Fond Rose */
+            color: #fff; /* Texte Blanc */
+            font-family: var(--font-display);
+            font-weight: 800;
             text-decoration: none;
             text-transform: uppercase;
-            font-weight: 800;
-            letter-spacing: 2px;
-            font-size: 0.9rem;
-            position: relative;
-            overflow: hidden;
-            transition: var(--transition-smooth);
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
             cursor: pointer;
-            margin-top: 3rem;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--accent-color);
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: -1;
+            border: none;
         }
 
         .btn:hover {
-            color: #fff;
-            box-shadow: 0 5px 30px var(--accent-glow);
-            border-color: transparent;
+            background-color: #000; /* Devient noir au survol pour le contraste */
+            color: var(--color-accent);
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 0, 204, 0.3);
         }
 
-        .btn:hover::before {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
-
-        /* Image Containers with premium hover */
-        .img-wrapper {
-            background-color: #121212;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid rgba(255, 0, 127, 0.1); /* Bordure rose très subtile au repos */
-            transition: border-color 0.4s ease;
-        }
-
-        .img-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
-            display: block;
-            opacity: 0.9; /* Légèrement sombre au repos pour faire ressortir le hover */
-        }
-
-        .img-wrapper:hover {
-             border-color: var(--accent-color); /* Bordure rose vif au survol */
-        }
-
-        .img-wrapper:hover img {
-            transform: scale(1.08);
-            opacity: 1;
-        }
-
-        /* =========================================
-           LAYOUT & SECTIONS
-           ========================================= */
-        
-        /* Navigation */
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            padding: 1.5rem var(--spacing-container);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* --- HEADER --- */
+        header {
+            position: fixed; top: 0; width: 100%; padding: 2rem 5%;
+            display: flex; justify-content: space-between; align-items: center;
             z-index: 100;
-            mix-blend-mode: difference;
         }
 
         .logo {
-            font-size: 1.8rem;
-            font-weight: 900;
-            letter-spacing: 4px;
-            color: var(--accent-color); /* Logo en rose */
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 2rem;
+            color: var(--color-accent); /* Logo ROSE */
+        }
+        
+        nav span { font-weight: 600; color: #000; }
+
+        /* --- HERO SECTION (Modifiée pour fond blanc) --- */
+        .hero {
+            height: 100vh; width: 100%;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            position: relative; overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #fff0fa 0%, #ffffff 60%); /* Léger halo rose au centre */
         }
 
-        .nav-links a {
-            color: #fff;
-            text-decoration: none;
-            margin-left: 2.5rem;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            font-weight: 700;
-            position: relative;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -5px;
-            left: 0;
-            background-color: var(--accent-color);
-            transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        /* Hero Section */
-        #hero {
-            min-height: 100vh;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        .hero-title {
+            font-size: clamp(3rem, 13vw, 14rem); /* ENCORE PLUS GROS */
             text-align: center;
-            position: relative;
-            padding: 15vh var(--spacing-container) 5vh;
-            overflow: hidden;
-        }
-
-        .hero-bg-text {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 18vw;
-            font-weight: 900;
-            /* Augmentation de la visibilité */
-            color: rgba(255, 255, 255, 0.08); 
+            z-index: 1; /* DERRIERE */
             white-space: nowrap;
-            z-index: -1;
-            pointer-events: none;
-            letter-spacing: -10px;
+            width: 100%;
+            line-height: 0.8;
         }
 
-        .hero-content {
-            z-index: 2;
-            max-width: 1000px;
-        }
+        /* Le texte du haut en Noir, celui du bas en ROSE */
+        .hero-title .line-1 { display: block; color: #000; }
+        .hero-title .line-2 { display: block; color: var(--color-accent); }
 
         .hero-img-container {
-            margin: 3rem auto;
-            width: 350px;
-            height: 450px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        /* Visual Showcase (Grid) */
-        #visuals {
-            padding: 15vh var(--spacing-container);
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 3rem;
             position: relative;
-        }
-
-        .gallery-item {
-            grid-column: span 12;
-        }
-
-        @media (min-width: 768px) {
-            .gallery-item:nth-child(1) { grid-column: span 7; height: 70vh; }
-            .gallery-item:nth-child(2) { grid-column: 8 / span 5; height: 50vh; margin-top: 20vh; }
-            .gallery-item:nth-child(3) { grid-column: span 12; margin-top: 5vh; text-align: center;}
-        }
-
-        /* Storytelling Section */
-        #story {
-            padding: 15vh var(--spacing-container);
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(to bottom, var(--bg-color), #0a0a0a);
-        }
-
-        .story-text {
-            flex: 2 1 400px;
-            padding-right: 8vw;
-            margin-bottom: 4rem;
-        }
-
-        .story-specs {
-            flex: 1 1 300px;
-            border-left: 2px solid var(--accent-color);
-            padding-left: 3rem;
-        }
-
-        .spec-item {
-            margin-bottom: 3rem;
-        }
-
-        .spec-title {
-            color: var(--accent-color);
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 0.8rem;
-            display: block;
-            letter-spacing: 1px;
-        }
-
-        .spec-item h4 {
-            font-size: 1.5rem;
-        }
-
-        /* Footer / CTA */
-        footer {
-            min-height: 70vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            border-top: 1px solid rgba(255, 0, 127, 0.2);
-            position: relative;
-            overflow: hidden;
-            background: radial-gradient(circle at center, #1a000d 0%, var(--bg-color) 70%);
-        }
-
-        /* =========================================
-           ANIMATIONS & SCROLL
-           ========================================= */
-        
-        /* Les éléments sont cachés initialement pour éviter le flash avant le chargement du JS */
-        body.is-loading .reveal {
+            z-index: 2; /* DEVANT */
+            width: 45vw; /* Un peu plus large */
+            height: 65vh;
             opacity: 0;
+            animation: popIn 1.2s var(--easing) 0.5s forwards;
         }
 
-        .reveal {
-            opacity: 0;
-            transform: translateY(80px) scale(0.98);
-            transition: 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        .hero-img-container img {
+            width: 100%; height: 100%; object-fit: contain;
+            /* Ombre portée plus douce pour le fond blanc */
+            filter: drop-shadow(0 30px 40px rgba(255, 0, 204, 0.15)); 
         }
 
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0) scale(1);
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8) translateY(50px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        .delay-100 { transition-delay: 0.1s; }
-        .delay-200 { transition-delay: 0.2s; }
-        .delay-300 { transition-delay: 0.3s; }
-
-        /* Parallax elements - More intense glow */
-        .parallax-bg {
-            position: fixed;
-            width: 60vw;
-            height: 60vw;
-            /* Lueur rose plus intense et plus grande */
-            background: radial-gradient(circle, var(--accent-glow) 0%, rgba(0,0,0,0) 60%);
-            border-radius: 50%;
-            z-index: -1;
-            top: -10%;
-            right: -10%;
-            pointer-events: none;
-            opacity: 0.4;
-            filter: blur(80px);
+        /* --- SHOWCASE --- */
+        .showcase {
+            padding: 10vh 5%;
+            display: grid; grid-template-columns: repeat(12, 1fr); gap: 2rem;
+            align-items: center;
         }
+
+        .visual-block {
+            grid-column: span 12; height: 70vh;
+            position: relative; overflow: hidden;
+            background-color: #f5f5f5; /* Gris très clair */
+        }
+        @media (min-width: 768px) { .visual-block.half { grid-column: span 6; height: 60vh; } }
+
+        .visual-block img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s ease; }
+        .visual-block:hover img { transform: scale(1.05); }
+
+        /* Bloc de texte technique : Fond Rose pâle */
+        .tech-block {
+            background-color: var(--color-accent-soft) !important;
+            color: #000;
+            border: 1px solid var(--color-accent);
+        }
+
+        /* --- DUALITY --- */
+        .duality { padding: 10vh 10%; display: flex; flex-direction: column; gap: 10vh; }
+        .story-row { display: flex; flex-direction: column; gap: 3rem; align-items: center; }
         
-        .parallax-bg-2 {
-             top: auto;
-             bottom: -20%;
-             right: auto;
-             left: -20%;
-             background: radial-gradient(circle, rgba(255, 0, 127, 0.4) 0%, rgba(0,0,0,0) 50%);
+        @media (min-width: 900px) {
+            .story-row { flex-direction: row; justify-content: space-between; }
+            .story-row.reverse { flex-direction: row-reverse; }
+            .story-text { width: 40%; }
+            .story-img { width: 50%; }
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .nav-links { display: none; }
-            nav { justify-content: center; }
-            .hero-img-container { width: 80vw; height: 100vw; max-height: 400px; }
-            .story-specs { border-left: none; padding-left: 0; border-top: 2px solid var(--accent-color); padding-top: 3rem; }
+        .story-text h2 { font-size: 3.5rem; margin-bottom: 1rem; color: #000; }
+        .story-text h2 span { color: var(--color-accent); } /* Mots clés en rose */
+        .story-text p { font-size: 1.1rem; line-height: 1.6; color: #444; font-weight: 400; }
+
+        .story-img img { width: 100%; transition: transform 0.5s ease; box-shadow: 20px 20px 0px var(--color-accent); /* Ombre graphique rose solide */ }
+        .story-img:hover img { transform: translate(-5px, -5px); box-shadow: 25px 25px 0px var(--color-accent); }
+
+        /* --- CTA SECTION (FULL ROSE) --- */
+        .cta-section {
+            height: 80vh;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+            background-color: var(--color-accent); /* FOND ROSE COMPLET */
+            color: #fff;
         }
+
+        .cta-section h2 { color: #fff; font-size: 4vw; }
+        .big-price { font-family: var(--font-display); font-size: 8rem; margin: 1rem 0; color: #000; /* Prix en noir sur fond rose */ }
+        
+        /* Bouton inversé pour le footer */
+        .btn-white {
+            background-color: #000; color: #fff; border: none;
+            padding: 1.5rem 4rem; font-size: 1.2rem;
+        }
+        .btn-white:hover { background-color: #fff; color: var(--color-accent); }
+
+        /* --- ANIMATIONS --- */
+        .reveal { opacity: 0; transform: translateY(50px); transition: all 1s var(--easing); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* Placeholders */
+        .ph-box { width: 100%; height: 100%; background: #eee; display: flex; justify-content: center; align-items: center; color: #999; border: 2px solid var(--color-accent); }
 
     </style>
 </head>
-<body class="is-loading">
+<body>
 
-    <div id="site-loader">
-        <div class="loader-content">
-            <span class="dancing-emoji">💃</span>
-            <div class="loader-text">INSHATTA</div>
-        </div>
-    </div>
+    <div id="preloader">
+        <div class="emoji-dance">💃</div> </div>
 
-    <div class="parallax-bg" id="glow1"></div>
-    <div class="parallax-bg parallax-bg-2" id="glow2"></div>
-
-    <nav>
+    <header>
         <div class="logo">INSHATTA.</div>
-        <div class="nav-links">
-            <a href="#hero">Accueil</a>
-            <a href="#visuals">Détails</a>
-            <a href="#story">Concept</a>
-            <a href="#cta-final" style="color: var(--accent-color);">Acheter</a>
-        </div>
-    </nav>
-
-    <header id="hero">
-        <div class="hero-bg-text">INSHATTA</div>
-        
-        <div class="hero-content">
-            <h1 class="reveal">Un maillot<br><span class="text-accent">Une identité.</span></h1>
-            
-            <div class="hero-img-container img-wrapper reveal delay-200">
-                <img src="Capture d'écran 2025-12-19 111621.png.jpg" alt="Maillot INSHATTA Vue Face" onerror="this.style.display='none'; this.parentNode.style.display='flex'; this.parentNode.style.justifyContent='center'; this.parentNode.style.alignItems='center'; this.parentNode.innerHTML='<span style=\'color:var(--accent-color);\'>maillot-front.jpg</span>'">
-            </div>
-
-            <p class="reveal delay-300">Plus qu'un vêtement de sport. Une déclaration de style disponible immédiatement.</p>
-            <a href="#cta-final" class="btn reveal delay-300">Acheter Maintenant</a>
-        </div>
+        <nav>
+            <span>SHOP</span>
+        </nav>
     </header>
 
-    <section id="visuals">
-        <div class="gallery-item img-wrapper reveal">
-            <img src="WhatsApp Image 2025-12-18 à 10.07.05_3a2730f7.jpg" alt="Maillot INSHATTA Dos" onerror="this.style.display='none'; this.parentNode.style.display='flex'; this.parentNode.style.justifyContent='center'; this.parentNode.style.alignItems='center'; this.parentNode.innerHTML='<span style=\'color:var(--accent-color);\'>maillot-back.jpg</span>'">
-        </div>
-        <div class="gallery-item img-wrapper reveal delay-200">
-            <img src="Capture d'écran 2025-12-19 111621.png.jpg" alt="Maillot INSHATTA Texture" onerror="this.style.display='none'; this.parentNode.style.display='flex'; this.parentNode.style.justifyContent='center'; this.parentNode.style.alignItems='center'; this.parentNode.innerHTML='<span style=\'color:var(--accent-color);\'>maillot-detail.jpg</span>'">
-        </div>
-        <div class="gallery-item reveal delay-100">
-             <h2 style="margin-top: 2rem;">L'exclusivité <span class="text-accent">accessible</span>.</h2>
-             <p style="margin: 0 auto;">Conçu pour ceux qui ne font pas de compromis entre l'allure et l'action.</p>
-        </div>
-    </section>
-
-    <section id="story">
-        <div class="story-text reveal">
-            <h2>Hybride</h2>
-            <p>INSHATTA brise les codes. Ce n'est pas un maillot que vous portez uniquement pour transpirer. C'est la pièce maîtresse de votre tenue, du terrain à la rue.</p>
-            <br>
-            <p>Une coupe technique, des matériaux respirants de pointe, et une esthétique streetwear agressive et luxueuse.</p>
-        </div>
-        <div class="story-specs reveal delay-200">
-            <div class="spec-item">
-                <span class="spec-title">Disponibilité</span>
-                <h4>En Stock Immédiat</h4>
-            </div>
-            <div class="spec-item">
-                <span class="spec-title">Design</span>
-                <h4>Coupe Lifestyle Ajustée</h4>
-            </div>
-            <div class="spec-item">
-                <span class="spec-title">Prix</span>
-                <h4 class="text-accent">40.00 €</h4>
-            </div>
-        </div>
-    </section>
-
-    <footer id="cta-final">
-        <h2 class="reveal">Votre <span class="text-accent">Identité</span> vous attend.</h2>
-        <p class="reveal delay-100" style="margin-bottom: 1rem;">Stock limité. Expédition immédiate.</p>
-        <a href="#" class="btn reveal delay-200">Acheter Maintenant • 40€</a>
+    <section class="hero">
+        <h1 class="hero-title">
+            <span class="line-1 reveal">UN MAILLOT</span>
+            <span class="line-2 reveal">UNE IDENTITÉ</span>
+        </h1>
         
-        <div style="margin-top: 5rem; opacity: 0.6; font-size: 0.8rem; display: flex; flex-direction: column; gap: 1rem;">
-            <div class="logo" style="font-size: 1.2rem;">INSHATTA.</div>
-            <span>&copy; 2024. All Rights Reserved.</span>
+        <div class="hero-img-container">
+            <img src="maillot-front.jpg" alt="Maillot INSHATTA" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="ph-box" style="display:none;">IMAGE FACE</div>
         </div>
-    </footer>
+
+        <div style="position: absolute; bottom: 2rem; color: var(--color-accent); font-weight: bold; letter-spacing: 2px; animation: bounce 2s infinite;">SCROLL DOWN</div>
+    </section>
+
+    <section class="showcase">
+        <div class="visual-block reveal">
+            <img src="maillot-detail.jpg" alt="Détail" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="ph-box" style="display:none;">IMAGE DÉTAIL</div>
+        </div>
+        
+        <div class="visual-block half reveal">
+            <img src="maillot-back.jpg" alt="Dos" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="ph-box" style="display:none;">IMAGE DOS</div>
+        </div>
+        
+        <div class="visual-block half tech-block reveal" style="display:flex; align-items:center; justify-content:center; padding: 3rem;">
+            <div>
+                <h3 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--color-accent);">FLORAL<br>& TECH</h3>
+                <p>Le motif floral n'est pas qu'un imprimé. C'est une déclaration. Mélange audacieux de nature et de culture urbaine sur un tissu technique haute performance.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="duality">
+        <div class="story-row reveal">
+            <div class="story-text">
+                <h2>MODE <span>ON</span></h2>
+                <p>Le vert est là pour surprendre, mais le <strong>ROSE</strong> domine. C'est la couleur de ceux qui osent. Coupe ajustée pour la rue, design fait pour être vu.</p>
+            </div>
+            <div class="story-img">
+                <img src="maillot-front.jpg" alt="Lifestyle" onerror="this.src='https://placehold.co/600x400/ffe5fa/FF00CC?text=Inshatta+Mode'">
+            </div>
+        </div>
+
+        <div class="story-row reverse reveal">
+            <div class="story-text">
+                <h2>SPORT <span>ON</span></h2>
+                <p>40 euros. C'est le prix de l'exception sans se ruiner. Tissu respirant, liberté de mouvement totale. </p>
+            </div>
+            <div class="story-img">
+                <img src="maillot-back.jpg" alt="Sport" onerror="this.src='https://placehold.co/600x400/ffe5fa/FF00CC?text=Inshatta+Sport'">
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <h2 class="reveal">TON IDENTITÉ T'ATTEND</h2>
+        <div class="big-price reveal">40 €</div>
+        <a href="#" class="btn btn-white reveal">COMMANDER</a>
+        <p style="margin-top: 2rem; font-weight: 600; letter-spacing: 1px;" class="reveal">STOCK ILLIMITÉ. LIVRAISON RAPIDE.</p>
+    </section>
 
     <script>
-        // =========================================
-        // LOADER LOGIC
-        // =========================================
+        // Loader
         window.addEventListener('load', () => {
-            const loader = document.getElementById('site-loader');
-            const body = document.body;
-            
-            // Petit délai pour apprécier l'animation de chargement
-            setTimeout(() => {
-                loader.classList.add('loaded');
-                body.classList.remove('is-loading');
-                
-                // Déclenche les animations d'entrée après que le loader soit parti
-                setTimeout(() => {
-                    initAnimations();
-                }, 600);
-            }, 1500); // Temps d'affichage du loader (1.5s)
+            setTimeout(() => { document.getElementById('preloader').style.transform = 'translateY(-100%)'; }, 800);
         });
 
-        // =========================================
-        // INTERSECTION OBSERVER (Scroll Reveal)
-        // =========================================
-        function initAnimations() {
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.15
-            };
-
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('active');
-                        observer.unobserve(entry.target); // On arrête d'observer une fois animé pour la perf
-                    }
-                });
-            }, observerOptions);
-
-            // On cible les éléments uniquement quand le chargement est fini
-            const revealElements = document.querySelectorAll('.reveal');
-            revealElements.forEach(el => observer.observe(el));
-        }
-
-        // =========================================
-        // PARALLAX EFFECT (Subtle & Smooth)
-        // =========================================
-        let scrollY = 0;
-        let ticking = false;
-
-        function updateParallax() {
-            const glow1 = document.getElementById('glow1');
-            const glow2 = document.getElementById('glow2');
-            const heroText = document.querySelector('.hero-bg-text');
-            
-            // Mouvement plus fluide des éléments d'arrière-plan
-            glow1.style.transform = `translateY(${scrollY * 0.2}px) translateX(${scrollY * -0.1}px)`;
-            glow2.style.transform = `translateY(${scrollY * -0.15}px) translateX(${scrollY * 0.1}px)`;
-            
-            if(heroText) {
-                heroText.style.transform = `translate(-50%, -50%) translateY(${scrollY * 0.08}px)`;
-            }
-            
-            ticking = false;
-        }
-
-        window.addEventListener('scroll', () => {
-            scrollY = window.pageYOffset;
-            if (!ticking) {
-                window.requestAnimationFrame(updateParallax);
-                ticking = true;
-            }
-        });
-
-        // =========================================
-        // SMOOTH SCROLL FOR ANCHORS
-        // =========================================
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                if(this.getAttribute('href') !== "#") {
-                    e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
+        // Animations Scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
             });
-        });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
+        // Parallaxe Hero (Inverse : texte bouge moins vite que image)
+        window.addEventListener('scroll', () => {
+            const y = window.pageYOffset;
+            const title = document.querySelector('.hero-title');
+            const img = document.querySelector('.hero-img-container');
+            if(y < window.innerHeight) {
+                // Le titre descend doucement
+                title.style.transform = `translate(-50%, calc(-50% + ${y * 0.3}px))`;
+                // L'image monte un peu pour créer le croisement
+                img.style.transform = `translateY(-${y * 0.1}px)`;
+            }
+        });
     </script>
 </body>
 </html>
