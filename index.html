@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>INSHATTA | PINK EDITION</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
     <style>
         /* --- RESET & VARIABLES --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
         :root {
             --color-bg: #ffffff; 
             --color-text: #000000;
@@ -19,36 +23,131 @@
             --font-body: 'Inter', sans-serif;
             --easing: cubic-bezier(0.22, 1, 0.36, 1);
         }
+
         ::selection { background: var(--color-accent); color: #fff; }
-        body { background-color: var(--color-bg); color: var(--color-text); font-family: var(--font-body); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
-        
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+        }
+
+        /* --- BACKGROUND ANIMATION (LIGNES VISIBLES) --- */
+        .bg-lines-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; 
+            overflow: hidden; pointer-events: none;
+        }
+
+        .line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+            /* MODIFICATION : Lignes plus visibles */
+            opacity: 0.8; 
+            height: 4px; 
+            filter: blur(0px);
+            width: 70%;
+        }
+
+        .line:nth-child(1) { top: 20%; left: -50%; animation: drift 15s linear infinite; }
+        .line:nth-child(2) { 
+            top: 60%; left: -50%; animation: drift 22s linear infinite reverse; 
+            height: 3px; opacity: 0.6; 
+        }
+        .line:nth-child(3) { top: 85%; left: -50%; animation: drift 18s linear infinite; width: 30%; }
+
+        @keyframes drift {
+            from { transform: translateX(0) rotate(-5deg); }
+            to { transform: translateX(200vw) rotate(-5deg); }
+        }
+
         /* --- PRELOADER --- */
-        #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: var(--color-accent); z-index: 9999; display: flex; justify-content: center; align-items: center; transition: transform 0.8s var(--easing); }
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background-color: var(--color-accent);
+            z-index: 9999; display: flex; justify-content: center; align-items: center;
+            transition: transform 0.8s var(--easing);
+        }
         .emoji-dance { font-size: 5rem; animation: bounce 0.6s infinite alternate; }
         @keyframes bounce { to { transform: translateY(-20px) scale(1.1); } }
 
         /* --- TYPOGRAPHY & UI --- */
         h1, h2, h3 { font-family: var(--font-display); text-transform: uppercase; line-height: 0.9; }
-        .btn { display: inline-block; padding: 1.2rem 3.5rem; background-color: var(--color-accent); color: #fff; font-family: var(--font-display); font-weight: 800; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; border: none; }
-        .btn:hover { background-color: #000; color: var(--color-accent); transform: scale(1.05); box-shadow: 0 10px 30px rgba(255, 0, 204, 0.3); }
+        
+        .btn {
+            display: inline-block; padding: 1.2rem 3.5rem;
+            background-color: var(--color-accent); color: #fff;
+            font-family: var(--font-display); font-weight: 800;
+            text-decoration: none; text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.3s ease; border: none; cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #000; color: var(--color-accent);
+            transform: scale(1.05); box-shadow: 0 10px 30px rgba(255, 0, 204, 0.3);
+        }
+
+        .btn-small { padding: 0.8rem 2rem; font-size: 0.9rem; }
+        .btn-white { background-color: #000; color: #fff; }
+        .btn-white:hover { background-color: #fff; }
 
         /* --- HEADER --- */
-        header { position: fixed; top: 0; width: 100%; padding: 2rem 5%; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
-        .logo { font-family: var(--font-display); font-weight: 800; font-size: 2rem; color: var(--color-accent); }
-        nav a { font-weight: 600; color: #000; text-decoration: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        header {
+            position: fixed; top: 0; width: 100%; padding: 1.5rem 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
+        }
+        .logo { font-family: var(--font-display); font-weight: 800; font-size: 1.8rem; color: var(--color-accent); }
 
-        /* --- HERO SECTION --- */
-        .hero { height: 100vh; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; overflow: hidden; background: radial-gradient(circle at 50% 50%, #fff0fa 0%, #ffffff 60%); }
-        .hero-title { font-size: clamp(3rem, 13vw, 14rem); text-align: center; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1; white-space: nowrap; width: 100%; line-height: 0.8; }
+        /* --- HERO SECTION (Version Empilée : Texte Haut, Image Bas) --- */
+        .hero {
+            min-height: 100vh; 
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Aligné en haut */
+            align-items: center;
+            padding-top: 140px; /* Espace sous le header */
+            padding-bottom: 4rem;
+            position: relative;
+            overflow: hidden;
+            /* Fond ajusté */
+            background: radial-gradient(circle at 50% 50%, rgba(255, 240, 250, 0.8) 0%, rgba(255, 255, 255, 0.1) 70%);
+        }
+
+        .hero-title {
+            position: relative; /* Plus d'absolute */
+            font-size: clamp(3rem, 10vw, 10rem);
+            text-align: center;
+            margin-bottom: 3rem; /* Espace entre titre et image */
+            z-index: 2;
+            line-height: 0.9;
+        }
         .hero-title .line-1 { display: block; color: #000; }
         .hero-title .line-2 { display: block; color: var(--color-accent); }
-        .hero-img-container { position: relative; z-index: 2; width: 45vw; height: 65vh; opacity: 0; animation: popIn 1.2s var(--easing) 0.5s forwards; }
-        .hero-img-container img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 30px 40px rgba(255, 0, 204, 0.15)); }
+
+        .hero-img-container {
+            position: relative;
+            z-index: 1;
+            width: 80vw;
+            max-width: 600px;
+            height: 50vh;
+            opacity: 0;
+            animation: popIn 1.2s var(--easing) 0.5s forwards;
+        }
+
+        .hero-img-container img {
+            width: 100%; height: 100%; object-fit: contain;
+            filter: drop-shadow(0 30px 40px rgba(255, 0, 204, 0.15));
+        }
+        
         @keyframes popIn { from { opacity: 0; transform: scale(0.8) translateY(50px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
         /* --- SHOWCASE --- */
         .showcase { padding: 10vh 5%; display: grid; grid-template-columns: repeat(12, 1fr); gap: 2rem; align-items: center; }
-        .visual-block { grid-column: span 12; height: 70vh; position: relative; overflow: hidden; background-color: #f5f5f5; }
+        .visual-block { grid-column: span 12; height: 70vh; position: relative; overflow: hidden; background-color: rgba(245, 245, 245, 0.8); }
         @media (min-width: 768px) { .visual-block.half { grid-column: span 6; height: 60vh; } }
         .visual-block img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s ease; }
         .visual-block:hover img { transform: scale(1.05); }
@@ -65,11 +164,23 @@
         .story-img:hover img { transform: translate(-5px, -5px); box-shadow: 25px 25px 0px var(--color-accent); }
 
         /* --- CTA SECTION --- */
-        .cta-section { height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background-color: var(--color-accent); color: #fff; }
+        .cta-section {
+            min-height: 80vh;
+            padding: 5rem 2rem;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+            background-color: var(--color-accent); color: #fff;
+        }
         .cta-section h2 { color: #fff; font-size: 4vw; }
         .big-price { font-family: var(--font-display); font-size: 8rem; margin: 1rem 0; color: #000; }
-        .btn-white { background-color: #000; color: #fff; border: none; padding: 1.5rem 4rem; font-size: 1.2rem; }
-        .btn-white:hover { background-color: #fff; color: var(--color-accent); }
+        
+        .insta-link {
+            margin-top: 3rem; display: flex; align-items: center; gap: 10px;
+            color: #fff; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            transition: transform 0.3s ease;
+        }
+        .insta-link:hover { transform: scale(1.1); color: #000; }
+        .insta-icon { width: 24px; height: 24px; fill: currentColor; }
+
 
         /* --- ANIMATIONS & HELPERS --- */
         .reveal { opacity: 0; transform: translateY(50px); transition: all 1s var(--easing); }
@@ -78,11 +189,20 @@
     </style>
 </head>
 <body>
+
     <div id="preloader"><div class="emoji-dance">💃</div></div>
+
+    <div class="bg-lines-container">
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+    </div>
 
     <header>
         <div class="logo">INSHATTA.</div>
-        <nav><a href="order.html">COMMANDER</a></nav>
+        <nav>
+            <a href="#cta-anchor" class="btn btn-small">COMMANDER</a>
+        </nav>
     </header>
 
     <section class="hero">
@@ -90,11 +210,13 @@
             <span class="line-1 reveal">UN MAILLOT</span>
             <span class="line-2 reveal">UNE IDENTITÉ</span>
         </h1>
+        
         <div class="hero-img-container">
             <img src="maillot-front.jpg" alt="Maillot INSHATTA" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
             <div class="ph-box" style="display:none;">IMAGE FACE</div>
         </div>
-        <div style="position: absolute; bottom: 2rem; color: var(--color-accent); font-weight: bold; letter-spacing: 2px; animation: bounce 2s infinite;">SCROLL DOWN</div>
+        
+        <div style="margin-top: 3rem; color: var(--color-accent); font-weight: bold; letter-spacing: 2px; animation: bounce 2s infinite;">SCROLL DOWN</div>
     </section>
 
     <section class="showcase">
@@ -136,18 +258,37 @@
         </div>
     </section>
 
-    <section class="cta-section">
+    <section class="cta-section" id="cta-anchor">
         <h2 class="reveal">TON IDENTITÉ T'ATTEND</h2>
         <div class="big-price reveal">40 €</div>
+        
         <a href="order.html" class="btn btn-white reveal">COMMANDER</a>
         <p style="margin-top: 2rem; font-weight: 600; letter-spacing: 1px;" class="reveal">STOCK ILLIMITÉ. LIVRAISON RAPIDE.</p>
+        
+        <a href="https://www.instagram.com/inshatta?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="insta-link reveal">
+            <svg class="insta-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.9 0-184.9zM490.9 453c-5.5 21.3-22.8 38.6-44.1 44.1-21.6 5.7-66.6 7.4-125.5 7.4-58.8 0-103.9-1.7-125.5-7.4-21.3-5.5-38.6-22.8-44.1-44.1-5.7-21.6-7.4-66.6-7.4-125.5 0-58.8 1.7-103.9 7.4-125.5 5.5-21.3 22.8-38.6 44.1-44.1 21.6-5.7 66.6-7.4 125.5-7.4 58.8 0 103.9 1.7 125.5 7.4 21.3 5.5 38.6 22.8 44.1 44.1 5.7 21.6 7.4 66.6 7.4 125.5 0 58.8-1.7 103.9-7.4 125.5z"/></svg>
+            Suivre INSHATTA
+        </a>
     </section>
 
     <script>
-        window.addEventListener('load', () => { setTimeout(() => { document.getElementById('preloader').style.transform = 'translateY(-100%)'; }, 800); });
-        const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); }); }, { threshold: 0.1 });
+        // 1. Loader
+        window.addEventListener('load', () => { 
+            setTimeout(() => { 
+                document.getElementById('preloader').style.transform = 'translateY(-100%)'; 
+            }, 800); 
+        });
+
+        // 2. Animations au scroll (Apparition)
+        const observer = new IntersectionObserver((entries) => { 
+            entries.forEach(entry => { 
+                if (entry.isIntersecting) entry.target.classList.add('active'); 
+            }); 
+        }, { threshold: 0.1 });
+        
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-        window.addEventListener('scroll', () => { const y = window.pageYOffset; const title = document.querySelector('.hero-title'); const img = document.querySelector('.hero-img-container'); if(y < window.innerHeight) { title.style.transform = `translate(-50%, calc(-50% + ${y * 0.3}px))`; img.style.transform = `translateY(-${y * 0.1}px)`; } });
+
+        // Note: L'effet de parallaxe a été retiré pour ne pas casser l'alignement Titre/Image
     </script>
 </body>
 </html>
