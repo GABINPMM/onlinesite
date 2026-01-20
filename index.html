@@ -3,292 +3,681 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INSHATTA | PINK EDITION</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-
+    <title>Examen Blanc : Économie Contemporaine</title>
     <style>
-        /* --- RESET & VARIABLES --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-
-        :root {
-            --color-bg: #ffffff; 
-            --color-text: #000000;
-            --color-accent: #FF00CC; /* Rose Néon */
-            --color-accent-soft: #ffe5fa;
-            --font-display: 'Syne', sans-serif;
-            --font-body: 'Inter', sans-serif;
-            --easing: cubic-bezier(0.22, 1, 0.36, 1);
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { text-align: center; color: #1a237e; margin-bottom: 30px; }
+        .intro { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); text-align: center; border: 1px solid #ddd; }
+        .card { background: #fff; padding: 25px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 6px solid #3949ab; }
+        .question { font-weight: 700; font-size: 1.1em; margin-bottom: 20px; color: #2c3e50; }
+        .options { display: grid; gap: 10px; }
+        .btn { 
+            width: 100%; 
+            padding: 12px 15px; 
+            text-align: left; 
+            background: #f8f9fa; 
+            border: 1px solid #e9ecef; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 0.95em;
+            transition: all 0.2s;
+            color: #495057;
+            font-family: inherit;
         }
-
-        ::selection { background: var(--color-accent); color: #fff; }
-
-        body {
-            background-color: var(--color-bg);
-            color: var(--color-text);
-            font-family: var(--font-body);
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            position: relative;
-        }
-
-        /* --- BACKGROUND ANIMATION (LIGNES VISIBLES) --- */
-        .bg-lines-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; 
-            overflow: hidden; pointer-events: none;
-        }
-
-        .line {
-            position: absolute;
-            background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
-            /* MODIFICATION : Lignes plus visibles */
-            opacity: 0.8; 
-            height: 4px; 
-            filter: blur(0px);
-            width: 70%;
-        }
-
-        .line:nth-child(1) { top: 20%; left: -50%; animation: drift 15s linear infinite; }
-        .line:nth-child(2) { 
-            top: 60%; left: -50%; animation: drift 22s linear infinite reverse; 
-            height: 3px; opacity: 0.6; 
-        }
-        .line:nth-child(3) { top: 85%; left: -50%; animation: drift 18s linear infinite; width: 30%; }
-
-        @keyframes drift {
-            from { transform: translateX(0) rotate(-5deg); }
-            to { transform: translateX(200vw) rotate(-5deg); }
-        }
-
-        /* --- PRELOADER --- */
-        #preloader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-            background-color: var(--color-accent);
-            z-index: 9999; display: flex; justify-content: center; align-items: center;
-            transition: transform 0.8s var(--easing);
-        }
-        .emoji-dance { font-size: 5rem; animation: bounce 0.6s infinite alternate; }
-        @keyframes bounce { to { transform: translateY(-20px) scale(1.1); } }
-
-        /* --- TYPOGRAPHY & UI --- */
-        h1, h2, h3 { font-family: var(--font-display); text-transform: uppercase; line-height: 0.9; }
+        .btn:hover:not(:disabled) { background: #e2e6ea; border-color: #adb5bd; }
+        .btn:disabled { cursor: default; opacity: 1; color: #888; }
         
-        .btn {
-            display: inline-block; padding: 1.2rem 3.5rem;
-            background-color: var(--color-accent); color: #fff;
-            font-family: var(--font-display); font-weight: 800;
-            text-decoration: none; text-transform: uppercase; letter-spacing: 1px;
-            transition: all 0.3s ease; border: none; cursor: pointer;
-        }
-        .btn:hover {
-            background-color: #000; color: var(--color-accent);
-            transform: scale(1.05); box-shadow: 0 10px 30px rgba(255, 0, 204, 0.3);
-        }
-
-        .btn-small { padding: 0.8rem 2rem; font-size: 0.9rem; }
-        .btn-white { background-color: #000; color: #fff; }
-        .btn-white:hover { background-color: #fff; }
-
-        /* --- HEADER --- */
-        header {
-            position: fixed; top: 0; width: 100%; padding: 1.5rem 5%;
-            display: flex; justify-content: space-between; align-items: center;
-            z-index: 100; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
-        }
-        .logo { font-family: var(--font-display); font-weight: 800; font-size: 1.8rem; color: var(--color-accent); }
-
-        /* --- HERO SECTION (Version Empilée : Texte Haut, Image Bas) --- */
-        .hero {
-            min-height: 100vh; 
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start; /* Aligné en haut */
-            align-items: center;
-            padding-top: 140px; /* Espace sous le header */
-            padding-bottom: 4rem;
-            position: relative;
-            overflow: hidden;
-            /* Fond ajusté */
-            background: radial-gradient(circle at 50% 50%, rgba(255, 240, 250, 0.8) 0%, rgba(255, 255, 255, 0.1) 70%);
-        }
-
-        .hero-title {
-            position: relative; /* Plus d'absolute */
-            font-size: clamp(3rem, 10vw, 10rem);
-            text-align: center;
-            margin-bottom: 3rem; /* Espace entre titre et image */
-            z-index: 2;
-            line-height: 0.9;
-        }
-        .hero-title .line-1 { display: block; color: #000; }
-        .hero-title .line-2 { display: block; color: var(--color-accent); }
-
-        .hero-img-container {
-            position: relative;
-            z-index: 1;
-            width: 80vw;
-            max-width: 600px;
-            height: 50vh;
-            opacity: 0;
-            animation: popIn 1.2s var(--easing) 0.5s forwards;
-        }
-
-        .hero-img-container img {
-            width: 100%; height: 100%; object-fit: contain;
-            filter: drop-shadow(0 30px 40px rgba(255, 0, 204, 0.15));
-        }
+        /* Styles de réponse */
+        .correct-answer { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724 !important; font-weight: bold; }
+        .wrong-answer { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important; }
         
-        @keyframes popIn { from { opacity: 0; transform: scale(0.8) translateY(50px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-
-        /* --- SHOWCASE --- */
-        .showcase { padding: 10vh 5%; display: grid; grid-template-columns: repeat(12, 1fr); gap: 2rem; align-items: center; }
-        .visual-block { grid-column: span 12; height: 70vh; position: relative; overflow: hidden; background-color: rgba(245, 245, 245, 0.8); }
-        @media (min-width: 768px) { .visual-block.half { grid-column: span 6; height: 60vh; } }
-        .visual-block img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s ease; }
-        .visual-block:hover img { transform: scale(1.05); }
-        .tech-block { background-color: var(--color-accent-soft) !important; color: #000; border: 1px solid var(--color-accent); }
-
-        /* --- DUALITY --- */
-        .duality { padding: 10vh 10%; display: flex; flex-direction: column; gap: 10vh; }
-        .story-row { display: flex; flex-direction: column; gap: 3rem; align-items: center; }
-        @media (min-width: 900px) { .story-row { flex-direction: row; justify-content: space-between; } .story-row.reverse { flex-direction: row-reverse; } .story-text { width: 40%; } .story-img { width: 50%; } }
-        .story-text h2 { font-size: 3.5rem; margin-bottom: 1rem; color: #000; }
-        .story-text h2 span { color: var(--color-accent); }
-        .story-text p { font-size: 1.1rem; line-height: 1.6; color: #444; font-weight: 400; }
-        .story-img img { width: 100%; transition: transform 0.5s ease; box-shadow: 20px 20px 0px var(--color-accent); }
-        .story-img:hover img { transform: translate(-5px, -5px); box-shadow: 25px 25px 0px var(--color-accent); }
-
-        /* --- CTA SECTION --- */
-        .cta-section {
-            min-height: 80vh;
-            padding: 5rem 2rem;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
-            background-color: var(--color-accent); color: #fff;
-        }
-        .cta-section h2 { color: #fff; font-size: 4vw; }
-        .big-price { font-family: var(--font-display); font-size: 8rem; margin: 1rem 0; color: #000; }
-        
-        .insta-link {
-            margin-top: 3rem; display: flex; align-items: center; gap: 10px;
-            color: #fff; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-            transition: transform 0.3s ease;
-        }
-        .insta-link:hover { transform: scale(1.1); color: #000; }
-        .insta-icon { width: 24px; height: 24px; fill: currentColor; }
-
-
-        /* --- ANIMATIONS & HELPERS --- */
-        .reveal { opacity: 0; transform: translateY(50px); transition: all 1s var(--easing); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
-        .ph-box { width: 100%; height: 100%; background: #eee; display: flex; justify-content: center; align-items: center; color: #999; border: 2px solid var(--color-accent); }
+        .explanation { display: none; margin-top: 15px; padding: 15px; background: #e8f5e9; border-radius: 6px; font-size: 0.9em; border-left: 4px solid #28a745; line-height: 1.5; }
+        .score-box { position: fixed; bottom: 20px; right: 20px; background: #28a745; color: white; padding: 15px 25px; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; font-size: 1.2em; }
     </style>
 </head>
 <body>
 
-    <div id="preloader"><div class="emoji-dance">💃</div></div>
-
-    <div class="bg-lines-container">
-        <div class="line"></div>
-        <div class="line"></div>
-        <div class="line"></div>
+    <h1>Examen Blanc : Économie Contemporaine</h1>
+    <div class="intro">
+        50 Questions | Difficulté : Élevée | Aucune parenthèse d'aide<br>
+        <em>Clique sur une réponse pour valider.</em>
     </div>
 
-    <header>
-        <div class="logo">INSHATTA.</div>
-        <nav>
-            <a href="#cta-anchor" class="btn btn-small">COMMANDER</a>
-        </nav>
-    </header>
-
-    <section class="hero">
-        <h1 class="hero-title">
-            <span class="line-1 reveal">UN MAILLOT</span>
-            <span class="line-2 reveal">UNE IDENTITÉ</span>
-        </h1>
-        
-        <div class="hero-img-container">
-            <img src="maillot-front.jpg" alt="Maillot INSHATTA" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-            <div class="ph-box" style="display:none;">IMAGE FACE</div>
-        </div>
-        
-        <div style="margin-top: 3rem; color: var(--color-accent); font-weight: bold; letter-spacing: 2px; animation: bounce 2s infinite;">SCROLL DOWN</div>
-    </section>
-
-    <section class="showcase">
-        <div class="visual-block reveal">
-            <img src="maillot-detail.jpg" alt="Détail" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-            <div class="ph-box" style="display:none;">IMAGE DÉTAIL</div>
-        </div>
-        <div class="visual-block half reveal">
-            <img src="maillot-back.jpg" alt="Dos" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-            <div class="ph-box" style="display:none;">IMAGE DOS</div>
-        </div>
-        <div class="visual-block half tech-block reveal" style="display:flex; align-items:center; justify-content:center; padding: 3rem;">
-            <div>
-                <h3 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--color-accent);">FLORAL & TECH</h3>
-                <p>Mélange audacieux de nature et de culture urbaine sur un tissu technique haute performance.</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="duality">
-        <div class="story-row reveal">
-            <div class="story-text">
-                <h2>ESPRIT <span>SHATTA</span></h2>
-                <p>Plus qu'une couleur, le rose est notre étendard. Incarne le mouvement Shatta : audacieux, vibrant et sans compromis. Ce maillot n'est pas fait pour se cacher, il est fait pour briller.</p>
-            </div>
-            <div class="story-img">
-                <img src="maillot-front.jpg" alt="Lifestyle" onerror="this.src='https://placehold.co/600x400/ffe5fa/FF00CC?text=Inshatta+Shatta'">
-            </div>
-        </div>
-
-        <div class="story-row reverse reveal">
-            <div class="story-text">
-                <h2>SPORT <span>ON</span></h2>
-                <p>40 euros. C'est le prix de l'exception sans se ruiner. Tissu respirant, liberté de mouvement totale.</p>
-            </div>
-            <div class="story-img">
-                <img src="maillot-back.jpg" alt="Sport" onerror="this.src='https://placehold.co/600x400/ffe5fa/FF00CC?text=Inshatta+Sport'">
-            </div>
-        </div>
-    </section>
-
-    <section class="cta-section" id="cta-anchor">
-        <h2 class="reveal">TON IDENTITÉ T'ATTEND</h2>
-        <div class="big-price reveal">40 €</div>
-        
-        <a href="order.html" class="btn btn-white reveal">COMMANDER</a>
-        <p style="margin-top: 2rem; font-weight: 600; letter-spacing: 1px;" class="reveal">STOCK ILLIMITÉ. LIVRAISON RAPIDE.</p>
-        
-        <a href="https://www.instagram.com/inshatta?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="insta-link reveal">
-            <svg class="insta-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.9 0-184.9zM490.9 453c-5.5 21.3-22.8 38.6-44.1 44.1-21.6 5.7-66.6 7.4-125.5 7.4-58.8 0-103.9-1.7-125.5-7.4-21.3-5.5-38.6-22.8-44.1-44.1-5.7-21.6-7.4-66.6-7.4-125.5 0-58.8 1.7-103.9 7.4-125.5 5.5-21.3 22.8-38.6 44.1-44.1 21.6-5.7 66.6-7.4 125.5-7.4 58.8 0 103.9 1.7 125.5 7.4 21.3 5.5 38.6 22.8 44.1 44.1 5.7 21.6 7.4 66.6 7.4 125.5 0 58.8-1.7 103.9-7.4 125.5z"/></svg>
-            Suivre INSHATTA
-        </a>
-    </section>
+    <div id="quiz"></div>
+    <div class="score-box" id="score-display">0 / 50</div>
 
     <script>
-        // 1. Loader
-        window.addEventListener('load', () => { 
-            setTimeout(() => { 
-                document.getElementById('preloader').style.transform = 'translateY(-100%)'; 
-            }, 800); 
+        // Données du QCM corrigées (guillemets fixés)
+        const questions = [
+            // --- MARCHÉ DU TRAVAIL ---
+            {
+                q: "1. Que mesure exactement la productivité marginale du travail ?",
+                options: [
+                    "Le coût moyen engendré par chaque nouveau salarié embauché",
+                    "Le supplément de production apporté par une unité de travail en plus",
+                    "La quantité totale produite divisée par le nombre total de travailleurs",
+                    "Le profit réalisé par l'entreprise après paiement des salaires"
+                ],
+                correct: 1,
+                explain: "Ne confonds pas avec la productivité moyenne. C'est bien l'apport spécifique de la DERNIÈRE unité de travail."
+            },
+            {
+                q: "2. Sur le marché du travail néoclassique, comment se comporte la demande ?",
+                options: [
+                    "Elle augmente lorsque le coût réel du travail augmente",
+                    "Elle diminue lorsque le coût réel du travail augmente",
+                    "Elle reste constante quel que soit le niveau des salaires",
+                    "Elle dépend uniquement du niveau de la demande anticipée"
+                ],
+                correct: 1,
+                explain: "La demande vient des entreprises. Si le travail coûte plus cher, elles en demandent moins (fonction décroissante)."
+            },
+            {
+                q: "3. Quelle est la définition exacte du salaire de réservation ?",
+                options: [
+                    "Le salaire minimum légal imposé par les pouvoirs publics",
+                    "Le salaire d'équilibre qui égalise l'offre et la demande",
+                    "Le seuil de salaire en dessous duquel un individu refuse de travailler",
+                    "Le salaire élevé fixé pour motiver la productivité des salariés"
+                ],
+                correct: 2,
+                explain: "C'est un seuil psychologique individuel lié à l'arbitrage entre le travail et les loisirs."
+            },
+            {
+                q: "4. Selon la théorie du salaire d'efficience, pourquoi les entreprises paient-elles plus ?",
+                options: [
+                    "Pour se conformer aux régulations syndicales du secteur",
+                    "Pour augmenter la demande globale et relancer l'économie",
+                    "Pour attirer les candidats les plus productifs et compétents",
+                    "Pour compenser la pénibilité des tâches effectuées par les ouvriers"
+                ],
+                correct: 2,
+                explain: "Payer au-dessus du marché permet d'attirer les meilleurs (anti-sélection) et de les motiver (aléa moral)."
+            },
+            {
+                q: "5. Pour être chômeur au sens du BIT, laquelle de ces conditions est fausse ?",
+                options: [
+                    "Il faut être actuellement sans emploi",
+                    "Il faut être disponible pour travailler sous deux semaines",
+                    "Il faut percevoir des allocations de l'assurance chômage",
+                    "Il faut rechercher activement un emploi"
+                ],
+                correct: 2,
+                explain: "L'indemnisation n'est pas un critère. On peut être chômeur sans toucher d'argent."
+            },
+            {
+                q: "6. Quel est l'objectif principal d'une politique de flexicurité ?",
+                options: [
+                    "Garantir un emploi à vie dans la même entreprise pour tous",
+                    "Faciliter les licenciements tout en sécurisant les parcours professionnels",
+                    "Supprimer totalement les indemnités pour inciter à la reprise d'emploi",
+                    "Augmenter les contraintes administratives sur les embauches"
+                ],
+                correct: 1,
+                explain: "Modèle danois : fluidité pour l'employeur (flexibilité) et protection pour le salarié (sécurité)."
+            },
+            {
+                q: "7. Le chômage involontaire est principalement causé par :",
+                options: [
+                    "Le refus des travailleurs d'accepter les salaires du marché",
+                    "La préférence des individus pour les loisirs plutôt que le travail",
+                    "La rigidité des salaires qui empêche l'ajustement du marché",
+                    "L'inadéquation des compétences des chômeurs avec les offres"
+                ],
+                correct: 2,
+                explain: "Si le salaire ne peut pas baisser (SMIC, syndicats), il y a plus d'offre de travail que de demande, donc du chômage subi."
+            },
+            
+            // --- CROISSANCE & INVESTISSEMENT ---
+            {
+                q: "8. Dans l'analyse de Solow, que représente le résidu ?",
+                options: [
+                    "La part de croissance due à l'augmentation du capital",
+                    "La part de croissance due à l'augmentation du travail",
+                    "La part de croissance due au progrès technique inexpliqué",
+                    "La part de croissance due à la hausse générale des prix"
+                ],
+                correct: 2,
+                explain: "C'est la part de croissance qui ne vient ni de plus de machines, ni de plus d'hommes. C'est l'efficacité pure."
+            },
+            {
+                q: "9. La théorie de la croissance endogène met l'accent sur :",
+                options: [
+                    "Le caractère aléatoire et externe du progrès technique",
+                    "Les rendements décroissants des facteurs de production",
+                    "Le rôle des décisions d'investissement dans la connaissance",
+                    "L'importance de l'épargne pour financer les machines"
+                ],
+                correct: 2,
+                explain: "La croissance vient de l'intérieur (endogène) grâce à l'éducation, la R&D et les infrastructures."
+            },
+            {
+                q: "10. Qu'est-ce que l'investissement de remplacement ?",
+                options: [
+                    "L'achat de nouvelles machines pour augmenter la capacité",
+                    "L'achat de machines pour compenser l'usure du capital existant",
+                    "L'achat de brevets pour améliorer la productivité future",
+                    "L'achat de stocks pour anticiper une hausse de la demande"
+                ],
+                correct: 1,
+                explain: "C'est l'amortissement. On remplace juste ce qui est cassé pour maintenir le niveau de production."
+            },
+            {
+                q: "11. L'effet accélérateur stipule que l'investissement dépend de :",
+                options: [
+                    "La variation de la demande finale des consommateurs",
+                    "Le niveau des taux d'intérêt fixés par la banque centrale",
+                    "Le niveau d'épargne disponible dans l'économie",
+                    "La rentabilité espérée des projets d'entreprise"
+                ],
+                correct: 0,
+                explain: "Si la demande augmente, l'entreprise doit investir massivement pour ajuster ses capacités. La demande accélère l'investissement."
+            },
+            {
+                q: "12. Le taux d'intérêt réel se définit comme :",
+                options: [
+                    "Le taux nominal affiché par la banque moins les frais",
+                    "Le taux nominal affiché plus le taux de croissance",
+                    "Le taux nominal affiché moins le taux d'inflation",
+                    "Le taux nominal affiché divisé par le taux de change"
+                ],
+                correct: 2,
+                explain: "C'est ce que coûte vraiment l'emprunt en termes de pouvoir d'achat."
+            },
+            {
+                q: "13. Quelle fonction décrit le mieux la relation de Cobb-Douglas ?",
+                options: [
+                    "Elle relie le taux de chômage au taux d'inflation",
+                    "Elle relie la production aux facteurs capital et travail",
+                    "Elle relie la consommation au revenu disponible des ménages",
+                    "Elle relie les exportations au taux de change réel"
+                ],
+                correct: 1,
+                explain: "Y = A * K^alpha * L^beta. C'est la fonction de production standard."
+            },
+            {
+                q: "14. La destruction créatrice est un processus où :",
+                options: [
+                    "L'innovation détruit les activités obsolètes pour en créer de nouvelles",
+                    "La concurrence détruit les monopoles pour baisser les prix",
+                    "L'État détruit les emplois publics pour favoriser le privé",
+                    "La crise détruit du capital pour assainir l'économie"
+                ],
+                correct: 0,
+                explain: "Concept de Schumpeter. Le progrès technique rend les vieilles industries inutiles mais crée de nouveaux marchés."
+            },
+            
+            // --- INTERNATIONAL ---
+            {
+                q: "15. Le théorème HOS explique les échanges internationaux par :",
+                options: [
+                    "Les différences de productivité du travail entre les pays",
+                    "Les différences de dotations en facteurs de production",
+                    "Les différences de goûts et de préférences des consommateurs",
+                    "Les différences de réglementations douanières et fiscales"
+                ],
+                correct: 1,
+                explain: "Un pays riche en capital exporte des biens intensifs en capital. Un pays riche en travail exporte des biens intensifs en travail."
+            },
+            {
+                q: "16. Selon Ricardo, un pays doit se spécialiser là où :",
+                options: [
+                    "Il possède un coût de production absolu plus faible que les autres",
+                    "Il possède un avantage comparatif en termes de productivité relative",
+                    "Il peut produire tous les biens nécessaires à sa consommation",
+                    "Il dispose des salaires les plus bas du marché mondial"
+                ],
+                correct: 1,
+                explain: "Même si on est moins bon partout, on se spécialise là où on est le 'moins mauvais' (coût d'opportunité)."
+            },
+            {
+                q: "17. Le paradoxe de Leontief a mis en évidence que :",
+                options: [
+                    "Les pays riches exportent des produits intensifs en travail",
+                    "Les pays pauvres exportent des produits intensifs en capital",
+                    "Le commerce international ne profite pas à tous les pays",
+                    "Les dotations factorielles ne suffisent pas à tout expliquer"
+                ],
+                correct: 0,
+                explain: "Les USA, riches en capital, exportaient pourtant beaucoup de biens intensifs en travail (qualifié), contredisant HOS simple."
+            },
+            {
+                q: "18. Qu'est-ce que la Division Internationale du Travail ?",
+                options: [
+                    "La création d'une monnaie unique pour faciliter les échanges",
+                    "La répartition mondiale des étapes de production entre les pays",
+                    "La mise en place de barrières douanières pour protéger l'emploi",
+                    "La libre circulation des travailleurs à travers les frontières"
+                ],
+                correct: 1,
+                explain: "C'est la spécialisation des pays : certains font la conception, d'autres l'assemblage, d'autres fournissent les matières premières."
+            },
+            
+            // --- INÉGALITÉS ---
+            {
+                q: "19. Que représente graphiquement la courbe de Lorenz ?",
+                options: [
+                    "La relation inverse entre le chômage et l'inflation",
+                    "La répartition des revenus cumulés dans la population",
+                    "L'évolution des inégalités au cours du développement",
+                    "La variation du taux d'imposition selon le revenu"
+                ],
+                correct: 1,
+                explain: "Plus la courbe s'éloigne de la diagonale, plus la répartition des richesses est inégalitaire."
+            },
+            {
+                q: "20. L'indice de Gini est égal à 0 lorsque :",
+                options: [
+                    "Une seule personne détient la totalité des richesses du pays",
+                    "La répartition des richesses est parfaitement égalitaire",
+                    "Le pays atteint son niveau maximal de développement humain",
+                    "Le taux de pauvreté est nul dans l'ensemble de la population"
+                ],
+                correct: 1,
+                explain: "0 = Égalité parfaite. 1 = Inégalité totale."
+            },
+
+            // --- CONCEPTS AVANCÉS & PIÈGES ---
+            {
+                q: "21. L'aléa moral se manifeste lorsque :",
+                options: [
+                    "Un agent prend plus de risques car il se sait protégé",
+                    "Un agent cache des informations avant la signature du contrat",
+                    "Un agent refuse de coopérer par manque de confiance",
+                    "Un agent rationnel maximise son utilité sous contrainte"
+                ],
+                correct: 0,
+                explain: "C'est un problème post-contractuel. Ex: je roule mal car je suis assuré."
+            },
+            {
+                q: "22. Le dilemme du prisonnier démontre que :",
+                options: [
+                    "La poursuite de l'intérêt individuel mène à l'optimum collectif",
+                    "La poursuite de l'intérêt individuel mène à un résultat sous-optimal",
+                    "La coopération est naturelle chez les agents économiques rationnels",
+                    "L'intervention de l'État est inutile pour réguler les marchés"
+                ],
+                correct: 1,
+                explain: "Sans coopération, les deux prisonniers se dénoncent et finissent avec une peine plus lourde."
+            },
+            {
+                q: "23. Une externalité négative est définie comme :",
+                options: [
+                    "Un échange marchand qui se solde par une perte financière",
+                    "Un impact néfaste sur un tiers sans compensation monétaire",
+                    "Une baisse de la production due à une mauvaise gestion",
+                    "Une taxe imposée par le gouvernement sur les polluants"
+                ],
+                correct: 1,
+                explain: "Le marché ne 'voit' pas ce coût (ex: pollution), donc il n'y a pas de prix pour le compenser."
+            },
+            {
+                q: "24. La loi des rendements marginaux décroissants implique que :",
+                options: [
+                    "La production totale diminue quand on ajoute des facteurs",
+                    "Chaque unité supplémentaire de facteur produit moins que la précédente",
+                    "Les coûts de production diminuent avec la quantité produite",
+                    "La rentabilité financière de l'entreprise baisse avec le temps"
+                ],
+                correct: 1,
+                explain: "Attention : la production totale augmente encore, mais de moins en moins vite (la dérivée baisse)."
+            },
+            {
+                q: "25. Le coût d'opportunité correspond à :",
+                options: [
+                    "La somme d'argent déboursée pour acquérir un bien",
+                    "La valeur de la meilleure option à laquelle on renonce",
+                    "Le coût supplémentaire pour produire une unité de plus",
+                    "La marge réalisée sur la vente d'un produit final"
+                ],
+                correct: 1,
+                explain: "Choisir c'est renoncer. Le coût d'aller au cinéma, c'est le prix du billet + ce que j'aurais pu faire de ce temps."
+            },
+            {
+                q: "26. Une politique de relance budgétaire consiste à :",
+                options: [
+                    "Augmenter les taux d'intérêt pour freiner l'inflation",
+                    "Baisser les dépenses publiques pour réduire le déficit",
+                    "Augmenter les dépenses publiques pour stimuler la demande",
+                    "Flexibiliser le marché du travail pour créer de l'emploi"
+                ],
+                correct: 2,
+                explain: "Vision Keynésienne : on injecte de l'argent (G) pour faire jouer le multiplicateur."
+            },
+            {
+                q: "27. Le capital humain est constitué par :",
+                options: [
+                    "L'ensemble des machines utilisées par les travailleurs",
+                    "Le stock de connaissances et de santé des travailleurs",
+                    "L'épargne accumulée par les ménages sur leurs comptes",
+                    "La population totale en âge de travailler dans le pays"
+                ],
+                correct: 1,
+                explain: "C'est une richesse immatérielle incorporée dans les individus (éducation, expérience)."
+            },
+            {
+                q: "28. La concurrence monopolistique désigne une situation où :",
+                options: [
+                    "Une seule entreprise domine totalement le marché",
+                    "Quelques grandes entreprises s'entendent sur les prix",
+                    "De nombreuses entreprises vendent des produits différenciés",
+                    "L'État détient le monopole de la production du bien"
+                ],
+                correct: 2,
+                explain: "Comme les restaurants ou les vêtements. Il y a concurrence, mais chaque produit est un peu unique (petit monopole)."
+            },
+            {
+                q: "29. Qu'est-ce que le PIB potentiel ?",
+                options: [
+                    "Le niveau de production maximal sans générer d'inflation",
+                    "Le niveau de production espéré par le gouvernement",
+                    "Le niveau de production incluant l'économie souterraine",
+                    "Le niveau de production si le chômage était nul"
+                ],
+                correct: 0,
+                explain: "C'est la capacité maximale soutenable de l'économie. Au-delà, c'est la surchauffe (inflation)."
+            },
+            {
+                q: "30. La tertiarisation de l'économie correspond à :",
+                options: [
+                    "La délocalisation des industries vers le tiers-monde",
+                    "La division de l'économie en trois secteurs distincts",
+                    "La montée en puissance des services dans le PIB",
+                    "La précarisation croissante des contrats de travail"
+                ],
+                correct: 2,
+                explain: "Passage d'une économie industrielle à une économie de services (commerces, banques, santé...)."
+            },
+            {
+                q: "31. Un bien public est caractérisé par :",
+                options: [
+                    "La rivalité et l'excluabilité de sa consommation",
+                    "La non-rivalité et la non-excluabilité de sa consommation",
+                    "Sa production exclusive par des entreprises publiques",
+                    "Son financement uniquement par l'impôt sur le revenu"
+                ],
+                correct: 1,
+                explain: "Ex: Éclairage public. Mon utilisation n'empêche pas la tienne (non-rival) et on ne peut empêcher personne d'en profiter (non-excluable)."
+            },
+            {
+                q: "32. L'effet d'éviction se produit lorsque :",
+                options: [
+                    "Les importations remplacent la production nationale",
+                    "Les dépenses publiques remplacent l'investissement privé",
+                    "Les robots remplacent les travailleurs non qualifiés",
+                    "Les grandes entreprises éliminent les petites PME"
+                ],
+                correct: 1,
+                explain: "L'État emprunte trop, fait monter les taux d'intérêt, et le privé ne peut plus emprunter pour investir."
+            },
+            {
+                q: "33. La courbe de Phillips met en relation :",
+                options: [
+                    "Le taux de croissance et le taux d'investissement",
+                    "Le taux de chômage et le taux de variation des salaires",
+                    "Le niveau des impôts et les recettes fiscales totales",
+                    "La quantité de monnaie et le niveau général des prix"
+                ],
+                correct: 1,
+                explain: "Arbitrage historique : pour baisser le chômage, il faut accepter un peu d'inflation (hausse des salaires)."
+            },
+            {
+                q: "34. Le protectionnisme éducateur vise à :",
+                options: [
+                    "Protéger temporairement les industries naissantes",
+                    "Protéger durablement les secteurs stratégiques",
+                    "Interdire totalement les importations étrangères",
+                    "Taxer les produits ne respectant pas les normes"
+                ],
+                correct: 0,
+                explain: "Théorie de Friedrich List. On protège le bébé industrie le temps qu'il devienne fort (adulte)."
+            },
+            {
+                q: "35. L'offre globale est une fonction :",
+                options: [
+                    "Croissante du niveau général des prix",
+                    "Décroissante du niveau général des prix",
+                    "Indépendante du niveau général des prix",
+                    "Dépendante du taux de change uniquement"
+                ],
+                correct: 0,
+                explain: "Si les prix de vente augmentent, les entreprises sont incitées à produire plus."
+            },
+            {
+                q: "36. La rationalité limitée signifie que les agents :",
+                options: [
+                    "Sont incapables de prendre des décisions logiques",
+                    "Agissent toujours sous le coup de l'émotion",
+                    "Optimisent leurs choix avec une information imparfaite",
+                    "Cherchent systématiquement à nuire à leurs concurrents"
+                ],
+                correct: 2,
+                explain: "On est rationnel, mais on n'a pas la capacité de tout calculer ni toute l'info (Simon). On cherche une solution satisfaisante, pas optimale."
+            },
+            {
+                q: "37. Le taux de chômage naturel correspond au :",
+                options: [
+                    "Chômage frictionnel ajouté au chômage structurel",
+                    "Chômage conjoncturel ajouté au chômage saisonnier",
+                    "Niveau de chômage le plus bas jamais enregistré",
+                    "Niveau de chômage souhaité par le gouvernement"
+                ],
+                correct: 0,
+                explain: "C'est le chômage plancher qu'on ne peut pas résorber par la simple relance de la demande."
+            },
+            {
+                q: "38. La trappe à liquidité désigne une situation où :",
+                options: [
+                    "Les banques refusent de prêter aux entreprises",
+                    "La politique monétaire devient inefficace car les taux sont bas",
+                    "Les ménages dépensent tout leur revenu immédiatement",
+                    "L'inflation devient incontrôlable et hyper-inflationniste"
+                ],
+                correct: 1,
+                explain: "Même si on injecte de la monnaie, les agents la thésaurisent (gardent en cash) au lieu de l'investir. Keynes."
+            },
+            {
+                q: "39. Un bien Giffen est un bien dont :",
+                options: [
+                    "La demande diminue quand le revenu augmente",
+                    "La demande augmente quand son prix augmente",
+                    "La consommation est interdite par la loi",
+                    "La production est nocive pour l'environnement"
+                ],
+                correct: 1,
+                explain: "Paradoxe : le pain augmente, mais comme je suis pauvre, je renonce à la viande et j'achète ENCORE PLUS de pain pour survivre."
+            },
+            {
+                q: "40. La désindustrialisation est souvent causée par :",
+                options: [
+                    "La baisse de la productivité dans l'industrie",
+                    "Les gains de productivité et la concurrence internationale",
+                    "L'augmentation des tarifs douaniers sur les imports",
+                    "La baisse de la demande pour les produits manufacturés"
+                ],
+                correct: 1,
+                explain: "On produit plus avec moins de gens (gains de prod) et on importe plus (concurrence). L'emploi industriel chute."
+            },
+            {
+                q: "41. L'Indice de Développement Humain intègre :",
+                options: [
+                    "Le PIB, le taux de chômage et l'inflation",
+                    "Le revenu, l'espérance de vie et l'éducation",
+                    "La liberté de la presse et les droits de l'homme",
+                    "L'empreinte écologique et les émissions de CO2"
+                ],
+                correct: 1,
+                explain: "PIB/habitant (niveau de vie), Espérance de vie (santé), Durée de scolarisation (savoir)."
+            },
+            {
+                q: "42. Le libre-échange est considéré comme un jeu :",
+                options: [
+                    "À somme nulle où les gains des uns sont les pertes des autres",
+                    "À somme positive où tous les pays gagnent globalement",
+                    "À somme négative où la concurrence détruit de la valeur",
+                    "Strictement réservé aux pays développés du Nord"
+                ],
+                correct: 1,
+                explain: "Ricardo/HOS : la spécialisation augmente la production mondiale totale. Tout le monde peut gagner (en théorie)."
+            },
+            {
+                q: "43. Une bulle spéculative se forme lorsque :",
+                options: [
+                    "Le prix d'un actif s'éloigne durablement de sa valeur fondamentale",
+                    "L'offre d'un bien dépasse largement la demande sur le marché",
+                    "L'État fixe artificiellement le prix d'un bien essentiel",
+                    "L'inflation dépasse le seuil critique de 10% par an"
+                ],
+                correct: 0,
+                explain: "On achète juste pour revendre plus cher, pas pour la valeur réelle du truc. Jusqu'à ce que ça explose."
+            },
+            {
+                q: "44. La politique monétaire restrictive vise à :",
+                options: [
+                    "Relancer la croissance par la baisse des taux",
+                    "Combattre l'inflation par la hausse des taux",
+                    "Dévaluer la monnaie pour favoriser l'export",
+                    "Augmenter la masse monétaire en circulation"
+                ],
+                correct: 1,
+                explain: "On rend l'argent plus cher et plus rare pour refroidir l'économie et casser l'inflation."
+            },
+            {
+                q: "45. Le multiplicateur d'investissement est d'autant plus fort que :",
+                options: [
+                    "La propension marginale à épargner est élevée",
+                    "La propension marginale à consommer est élevée",
+                    "Le taux d'imposition sur les sociétés est élevé",
+                    "Les importations représentent une part importante du PIB"
+                ],
+                correct: 1,
+                explain: "Si les gens consomment tout revenu supplémentaire, l'argent circule et se multiplie. S'ils épargnent, ça bloque."
+            },
+            {
+                q: "46. La croissance extensive bute inévitablement sur :",
+                options: [
+                    "La loi des rendements marginaux décroissants",
+                    "Le manque de main-d'œuvre qualifiée disponible",
+                    "L'insuffisance de la demande globale effective",
+                    "La saturation des marchés internationaux"
+                ],
+                correct: 0,
+                explain: "Ajouter des machines sans changer la technologie finit par ne plus rien rapporter de plus."
+            },
+            {
+                q: "47. L'économie de l'offre préconise de :",
+                options: [
+                    "Soutenir le pouvoir d'achat des ménages modestes",
+                    "Baisser les impôts et les charges des entreprises",
+                    "Nationaliser les secteurs clés de l'économie",
+                    "Augmenter les dépenses publiques d'infrastructure"
+                ],
+                correct: 1,
+                explain: "Inspiré de Laffer ('trop d'impôt tue l'impôt'). On aide les entreprises pour qu'elles produisent plus et embauchent."
+            },
+            {
+                q: "48. Le développement durable repose sur trois piliers :",
+                options: [
+                    "Économique, Social et Environnemental",
+                    "Politique, Culturel et Technologique",
+                    "Public, Privé et Associatif",
+                    "National, Européen et Mondial"
+                ],
+                correct: 0,
+                explain: "Concilier la croissance (éco), la justice (social) et la planète (environ)."
+            },
+            {
+                q: "49. Une asymétrie d'information ex-ante conduit à :",
+                options: [
+                    "Un phénomène d'anti-sélection ou sélection adverse",
+                    "Un phénomène d'aléa moral ou risque moral",
+                    "Une concurrence pure et parfaite sur le marché",
+                    "Une égalisation des prix des facteurs de production"
+                ],
+                correct: 0,
+                explain: "Avant le contrat (ex-ante) : le vendeur de voiture d'occasion sait qu'elle est pourrie, pas l'acheteur. Les mauvaises voitures chassent les bonnes."
+            },
+            {
+                q: "50. Le dumping social consiste à :",
+                options: [
+                    "Vendre à perte pour éliminer les concurrents",
+                    "Baisser les normes sociales pour attirer les entreprises",
+                    "Interdire les syndicats dans les zones franches",
+                    "Subventionner les exportations par l'État"
+                ],
+                correct: 1,
+                explain: "C'est une concurrence déloyale par le bas : on réduit la protection des travailleurs pour être moins cher que les voisins."
+            }
+        ];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const quizContainer = document.getElementById('quiz');
+            const scoreDisplay = document.getElementById('score-display');
+            let currentScore = 0;
+
+            if (!quizContainer) {
+                console.error("Erreur : Conteneur quiz non trouvé");
+                return;
+            }
+
+            questions.forEach((item, index) => {
+                // Création de la carte question
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                // Titre de la question
+                const questionTitle = document.createElement('div');
+                questionTitle.className = 'question';
+                questionTitle.textContent = item.q;
+                card.appendChild(questionTitle);
+
+                // Conteneur des options
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+
+                // Div explicative (créée avant pour référence, mais ajoutée après)
+                const explanationDiv = document.createElement('div');
+                explanationDiv.className = 'explanation';
+
+                // Création des boutons
+                const buttons = [];
+                item.options.forEach((opt, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn';
+                    btn.textContent = opt;
+                    
+                    // Logique du clic
+                    btn.onclick = () => {
+                        // Désactiver tous les boutons de cette question
+                        buttons.forEach(b => b.disabled = true);
+                        
+                        if (i === item.correct) {
+                            // Bonne réponse
+                            btn.classList.add('correct-answer');
+                            currentScore++;
+                            explanationDiv.innerHTML = "<strong>✅ Correct !</strong> " + item.explain;
+                        } else {
+                            // Mauvaise réponse
+                            btn.classList.add('wrong-answer');
+                            // Montrer la bonne
+                            buttons[item.correct].classList.add('correct-answer');
+                            explanationDiv.innerHTML = "<strong>❌ Erreur.</strong> La bonne réponse était la " + (item.correct + 1) + ".<br>" + item.explain;
+                        }
+                        
+                        // Afficher l'explication et le score
+                        explanationDiv.style.display = 'block';
+                        scoreDisplay.textContent = `${currentScore} / 50`;
+                    };
+
+                    buttons.push(btn);
+                    optionsDiv.appendChild(btn);
+                });
+
+                card.appendChild(optionsDiv);
+                card.appendChild(explanationDiv);
+                quizContainer.appendChild(card);
+            });
         });
-
-        // 2. Animations au scroll (Apparition)
-        const observer = new IntersectionObserver((entries) => { 
-            entries.forEach(entry => { 
-                if (entry.isIntersecting) entry.target.classList.add('active'); 
-            }); 
-        }, { threshold: 0.1 });
-        
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-        // Note: L'effet de parallaxe a été retiré pour ne pas casser l'alignement Titre/Image
     </script>
 </body>
 </html>
