@@ -3,681 +3,626 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Examen Blanc : Économie Contemporaine</title>
+    <title>Héritage - 100 Défis Minecraft</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
-        h1 { text-align: center; color: #1a237e; margin-bottom: 30px; }
-        .intro { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); text-align: center; border: 1px solid #ddd; }
-        .card { background: #fff; padding: 25px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 6px solid #3949ab; }
-        .question { font-weight: 700; font-size: 1.1em; margin-bottom: 20px; color: #2c3e50; }
-        .options { display: grid; gap: 10px; }
-        .btn { 
-            width: 100%; 
-            padding: 12px 15px; 
-            text-align: left; 
-            background: #f8f9fa; 
-            border: 1px solid #e9ecef; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-size: 0.95em;
-            transition: all 0.2s;
-            color: #495057;
-            font-family: inherit;
+        :root {
+            --mc-frame-outer: #281c13;
+            --mc-frame-inner: #5c4033;
+            --mc-slot-bg: #8b8b8b;
+            --mc-slot-border-light: #ffffff;
+            --mc-slot-border-dark: #373737;
+            --glow-green: #55ff55;
+            --glow-gold: #ffff55;
+            --wire-off: #4a0000;
+            --wire-on: #ff2200;
         }
-        .btn:hover:not(:disabled) { background: #e2e6ea; border-color: #adb5bd; }
-        .btn:disabled { cursor: default; opacity: 1; color: #888; }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'VT323', monospace;
+            user-select: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- CADRE & FOND --- */
+        #game-frame {
+            width: 98vw; height: 96vh;
+            background-color: var(--mc-frame-inner);
+            border: 8px solid var(--mc-frame-outer);
+            position: relative;
+            display: flex; flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,1);
+        }
+
+        #top-bar {
+            height: 85px;
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 4px solid #111;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+        }
+
+        .xp-title { font-size: 20px; color: #ccc; margin-bottom: 5px; text-shadow: 2px 2px #000; }
         
-        /* Styles de réponse */
-        .correct-answer { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724 !important; font-weight: bold; }
-        .wrong-answer { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important; }
+        .xp-container {
+            width: 600px; height: 16px;
+            background: #222; border: 2px solid #000;
+            border-top-color: #555; border-left-color: #555;
+            position: relative;
+        }
+        .xp-bar {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #10C910, #8AF78A);
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 10px #10C910;
+        }
+
+        .stats { font-size: 22px; color: var(--glow-gold); margin-top: 6px; text-shadow: 2px 2px #000; letter-spacing: 1px;}
+
+        #viewport {
+            flex-grow: 1; position: relative; overflow: hidden; cursor: grab;
+            background-color: #3a2618;
+            background-image: 
+                linear-gradient(45deg, #332012 25%, transparent 25%, transparent 75%, #332012 75%, #332012),
+                linear-gradient(45deg, #332012 25%, transparent 25%, transparent 75%, #332012 75%, #332012);
+            background-size: 32px 32px;
+            background-position: 0 0, 16px 16px;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+        }
+        #viewport:active { cursor: grabbing; }
+
+        #map-container {
+            position: absolute; transform-origin: 0 0;
+            width: 8000px; height: 8000px;
+            will-change: transform;
+        }
+
+        /* --- REDSTONE (SVG) --- */
+        #svg-layer {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; pointer-events: none; z-index: 1;
+        }
+        .wire { stroke: var(--wire-off); stroke-width: 8; fill: none; stroke-linejoin: miter; transition: stroke 0.3s; }
+        .wire.active { stroke: var(--wire-on); filter: drop-shadow(0 0 6px #ff0000); }
+
+        /* --- NODES (Slots Minecraft) --- */
+        #nodes-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
+
+        .node-wrapper {
+            position: absolute; display: flex; align-items: center;
+            transform: translate(-50%, -50%);
+        }
+
+        .node-slot {
+            width: 60px; height: 60px;
+            background: var(--mc-slot-bg);
+            border: 4px solid;
+            border-color: var(--mc-slot-border-light) var(--mc-slot-border-dark) var(--mc-slot-border-dark) var(--mc-slot-border-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px; cursor: pointer; position: relative;
+            box-shadow: 4px 4px 15px rgba(0,0,0,0.6);
+            transition: transform 0.15s, border-color 0.3s;
+        }
+        .node-slot:hover { transform: scale(1.15); z-index: 10; }
+
+        .icon { position: relative; z-index: 2; text-shadow: 2px 2px 0px rgba(0,0,0,0.5); }
+
+        /* États */
+        .node-slot.locked { filter: grayscale(100%) brightness(0.5); cursor: not-allowed; }
+        .node-slot.locked:hover { transform: scale(1); }
         
-        .explanation { display: none; margin-top: 15px; padding: 15px; background: #e8f5e9; border-radius: 6px; font-size: 0.9em; border-left: 4px solid #28a745; line-height: 1.5; }
-        .score-box { position: fixed; bottom: 20px; right: 20px; background: #28a745; color: white; padding: 15px 25px; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; font-size: 1.2em; }
+        .node-slot.completed {
+            background: #2a2a2a;
+            border-color: var(--glow-green);
+            box-shadow: 0 0 20px var(--glow-green), inset 0 0 15px var(--glow-green);
+        }
+        
+        .checkmark {
+            position: absolute; bottom: -12px; right: -12px;
+            color: var(--glow-green); font-size: 30px; text-shadow: 2px 2px #000;
+            display: none; z-index: 5; font-weight: bold;
+        }
+        .node-slot.completed .checkmark { display: block; }
+
+        .node-slot.epic { width: 84px; height: 84px; font-size: 50px; border-color: #aa00aa; border-top-color: #ff55ff; border-left-color: #ff55ff;}
+        .node-slot.epic.completed { border-color: var(--glow-gold); box-shadow: 0 0 40px var(--glow-gold), inset 0 0 20px var(--glow-gold); }
+        .node-slot.epic .checkmark { font-size: 40px; bottom: -15px; right: -15px; color: var(--glow-gold); }
+
+        .node-title-label {
+            position: absolute; top: 110%; left: 50%; transform: translateX(-50%);
+            white-space: nowrap; font-size: 20px; color: #fff; text-shadow: 2px 2px #000;
+            text-align: center; pointer-events: none;
+        }
+        .locked .node-title-label { color: #666; }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shaking { animation: shake 0.3s; border-color: red !important; }
+
+        /* --- TOOLTIP ENRICHI --- */
+        #tooltip {
+            position: fixed; background: rgba(20, 5, 20, 0.95);
+            border: 2px solid #5a1a5a; padding: 15px;
+            width: 320px; pointer-events: none; opacity: 0; z-index: 1000;
+            transition: opacity 0.1s; box-shadow: 5px 5px 15px rgba(0,0,0,0.8), inset 0 0 15px rgba(90,26,90,0.3);
+        }
+        .tt-status { font-size: 18px; margin-bottom: 6px; text-transform: uppercase; font-weight: bold; }
+        .tt-status.lock { color: #ff5555; }
+        .tt-status.ready { color: #55ffff; }
+        .tt-status.done { color: var(--glow-green); }
+        .tt-title { color: var(--glow-gold); font-size: 26px; margin-bottom: 5px; text-shadow: 2px 2px #000; line-height: 1.1;}
+        .tt-desc { color: #aaaaaa; font-size: 18px; line-height: 1.2; margin-bottom: 10px;}
+        .tt-sep { height: 1px; background: #5a1a5a; margin: 10px 0; }
+        .tt-details { color: #e0e0e0; font-size: 17px; line-height: 1.3; }
+
+        /* --- PARTICULES --- */
+        #particle-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
+
+        /* Contrôles */
+        .controls { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 10px; z-index: 100; }
+        .btn {
+            background: #8b8b8b; border: 3px solid; border-color: #fff #373737 #373737 #fff;
+            color: black; font-family: 'VT323'; font-size: 28px;
+            width: 45px; height: 45px; cursor: pointer; box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        }
+        .btn:active { border-color: #373737 #fff #fff #373737; transform: translateY(2px); }
+
     </style>
 </head>
 <body>
 
-    <h1>Examen Blanc : Économie Contemporaine</h1>
-    <div class="intro">
-        50 Questions | Difficulté : Élevée | Aucune parenthèse d'aide<br>
-        <em>Clique sur une réponse pour valider.</em>
+    <div id="game-frame">
+        <div id="top-bar">
+            <div class="xp-title">EXPÉRIENCE (XP)</div>
+            <div class="xp-container"><div class="xp-bar" id="xpBar"></div></div>
+            <div class="stats" id="statsText">DÉFIS COMPLÉTÉS: 0 / 100 (NIVEAU 0)</div>
+        </div>
+
+        <div id="viewport">
+            <div id="map-container">
+                <svg id="svg-layer"></svg>
+                <div id="nodes-layer"></div>
+                <canvas id="particle-canvas"></canvas>
+            </div>
+            
+            <div class="controls">
+                <button class="btn" onclick="zoomMap(0.25)">+</button>
+                <button class="btn" onclick="zoomMap(-0.25)">-</button>
+                <button class="btn" onclick="centerMap()">🎯</button>
+            </div>
+        </div>
     </div>
 
-    <div id="quiz"></div>
-    <div class="score-box" id="score-display">0 / 50</div>
+    <div id="tooltip">
+        <div class="tt-status" id="tt-status">STATUT</div>
+        <div class="tt-title" id="tt-title">Titre</div>
+        <div class="tt-desc" id="tt-desc">Description courte</div>
+        <div class="tt-sep"></div>
+        <div class="tt-details" id="tt-details">Détails de la mission</div>
+    </div>
 
     <script>
-        // Données du QCM corrigées (guillemets fixés)
-        const questions = [
-            // --- MARCHÉ DU TRAVAIL ---
-            {
-                q: "1. Que mesure exactement la productivité marginale du travail ?",
-                options: [
-                    "Le coût moyen engendré par chaque nouveau salarié embauché",
-                    "Le supplément de production apporté par une unité de travail en plus",
-                    "La quantité totale produite divisée par le nombre total de travailleurs",
-                    "Le profit réalisé par l'entreprise après paiement des salaires"
-                ],
-                correct: 1,
-                explain: "Ne confonds pas avec la productivité moyenne. C'est bien l'apport spécifique de la DERNIÈRE unité de travail."
-            },
-            {
-                q: "2. Sur le marché du travail néoclassique, comment se comporte la demande ?",
-                options: [
-                    "Elle augmente lorsque le coût réel du travail augmente",
-                    "Elle diminue lorsque le coût réel du travail augmente",
-                    "Elle reste constante quel que soit le niveau des salaires",
-                    "Elle dépend uniquement du niveau de la demande anticipée"
-                ],
-                correct: 1,
-                explain: "La demande vient des entreprises. Si le travail coûte plus cher, elles en demandent moins (fonction décroissante)."
-            },
-            {
-                q: "3. Quelle est la définition exacte du salaire de réservation ?",
-                options: [
-                    "Le salaire minimum légal imposé par les pouvoirs publics",
-                    "Le salaire d'équilibre qui égalise l'offre et la demande",
-                    "Le seuil de salaire en dessous duquel un individu refuse de travailler",
-                    "Le salaire élevé fixé pour motiver la productivité des salariés"
-                ],
-                correct: 2,
-                explain: "C'est un seuil psychologique individuel lié à l'arbitrage entre le travail et les loisirs."
-            },
-            {
-                q: "4. Selon la théorie du salaire d'efficience, pourquoi les entreprises paient-elles plus ?",
-                options: [
-                    "Pour se conformer aux régulations syndicales du secteur",
-                    "Pour augmenter la demande globale et relancer l'économie",
-                    "Pour attirer les candidats les plus productifs et compétents",
-                    "Pour compenser la pénibilité des tâches effectuées par les ouvriers"
-                ],
-                correct: 2,
-                explain: "Payer au-dessus du marché permet d'attirer les meilleurs (anti-sélection) et de les motiver (aléa moral)."
-            },
-            {
-                q: "5. Pour être chômeur au sens du BIT, laquelle de ces conditions est fausse ?",
-                options: [
-                    "Il faut être actuellement sans emploi",
-                    "Il faut être disponible pour travailler sous deux semaines",
-                    "Il faut percevoir des allocations de l'assurance chômage",
-                    "Il faut rechercher activement un emploi"
-                ],
-                correct: 2,
-                explain: "L'indemnisation n'est pas un critère. On peut être chômeur sans toucher d'argent."
-            },
-            {
-                q: "6. Quel est l'objectif principal d'une politique de flexicurité ?",
-                options: [
-                    "Garantir un emploi à vie dans la même entreprise pour tous",
-                    "Faciliter les licenciements tout en sécurisant les parcours professionnels",
-                    "Supprimer totalement les indemnités pour inciter à la reprise d'emploi",
-                    "Augmenter les contraintes administratives sur les embauches"
-                ],
-                correct: 1,
-                explain: "Modèle danois : fluidité pour l'employeur (flexibilité) et protection pour le salarié (sécurité)."
-            },
-            {
-                q: "7. Le chômage involontaire est principalement causé par :",
-                options: [
-                    "Le refus des travailleurs d'accepter les salaires du marché",
-                    "La préférence des individus pour les loisirs plutôt que le travail",
-                    "La rigidité des salaires qui empêche l'ajustement du marché",
-                    "L'inadéquation des compétences des chômeurs avec les offres"
-                ],
-                correct: 2,
-                explain: "Si le salaire ne peut pas baisser (SMIC, syndicats), il y a plus d'offre de travail que de demande, donc du chômage subi."
-            },
-            
-            // --- CROISSANCE & INVESTISSEMENT ---
-            {
-                q: "8. Dans l'analyse de Solow, que représente le résidu ?",
-                options: [
-                    "La part de croissance due à l'augmentation du capital",
-                    "La part de croissance due à l'augmentation du travail",
-                    "La part de croissance due au progrès technique inexpliqué",
-                    "La part de croissance due à la hausse générale des prix"
-                ],
-                correct: 2,
-                explain: "C'est la part de croissance qui ne vient ni de plus de machines, ni de plus d'hommes. C'est l'efficacité pure."
-            },
-            {
-                q: "9. La théorie de la croissance endogène met l'accent sur :",
-                options: [
-                    "Le caractère aléatoire et externe du progrès technique",
-                    "Les rendements décroissants des facteurs de production",
-                    "Le rôle des décisions d'investissement dans la connaissance",
-                    "L'importance de l'épargne pour financer les machines"
-                ],
-                correct: 2,
-                explain: "La croissance vient de l'intérieur (endogène) grâce à l'éducation, la R&D et les infrastructures."
-            },
-            {
-                q: "10. Qu'est-ce que l'investissement de remplacement ?",
-                options: [
-                    "L'achat de nouvelles machines pour augmenter la capacité",
-                    "L'achat de machines pour compenser l'usure du capital existant",
-                    "L'achat de brevets pour améliorer la productivité future",
-                    "L'achat de stocks pour anticiper une hausse de la demande"
-                ],
-                correct: 1,
-                explain: "C'est l'amortissement. On remplace juste ce qui est cassé pour maintenir le niveau de production."
-            },
-            {
-                q: "11. L'effet accélérateur stipule que l'investissement dépend de :",
-                options: [
-                    "La variation de la demande finale des consommateurs",
-                    "Le niveau des taux d'intérêt fixés par la banque centrale",
-                    "Le niveau d'épargne disponible dans l'économie",
-                    "La rentabilité espérée des projets d'entreprise"
-                ],
-                correct: 0,
-                explain: "Si la demande augmente, l'entreprise doit investir massivement pour ajuster ses capacités. La demande accélère l'investissement."
-            },
-            {
-                q: "12. Le taux d'intérêt réel se définit comme :",
-                options: [
-                    "Le taux nominal affiché par la banque moins les frais",
-                    "Le taux nominal affiché plus le taux de croissance",
-                    "Le taux nominal affiché moins le taux d'inflation",
-                    "Le taux nominal affiché divisé par le taux de change"
-                ],
-                correct: 2,
-                explain: "C'est ce que coûte vraiment l'emprunt en termes de pouvoir d'achat."
-            },
-            {
-                q: "13. Quelle fonction décrit le mieux la relation de Cobb-Douglas ?",
-                options: [
-                    "Elle relie le taux de chômage au taux d'inflation",
-                    "Elle relie la production aux facteurs capital et travail",
-                    "Elle relie la consommation au revenu disponible des ménages",
-                    "Elle relie les exportations au taux de change réel"
-                ],
-                correct: 1,
-                explain: "Y = A * K^alpha * L^beta. C'est la fonction de production standard."
-            },
-            {
-                q: "14. La destruction créatrice est un processus où :",
-                options: [
-                    "L'innovation détruit les activités obsolètes pour en créer de nouvelles",
-                    "La concurrence détruit les monopoles pour baisser les prix",
-                    "L'État détruit les emplois publics pour favoriser le privé",
-                    "La crise détruit du capital pour assainir l'économie"
-                ],
-                correct: 0,
-                explain: "Concept de Schumpeter. Le progrès technique rend les vieilles industries inutiles mais crée de nouveaux marchés."
-            },
-            
-            // --- INTERNATIONAL ---
-            {
-                q: "15. Le théorème HOS explique les échanges internationaux par :",
-                options: [
-                    "Les différences de productivité du travail entre les pays",
-                    "Les différences de dotations en facteurs de production",
-                    "Les différences de goûts et de préférences des consommateurs",
-                    "Les différences de réglementations douanières et fiscales"
-                ],
-                correct: 1,
-                explain: "Un pays riche en capital exporte des biens intensifs en capital. Un pays riche en travail exporte des biens intensifs en travail."
-            },
-            {
-                q: "16. Selon Ricardo, un pays doit se spécialiser là où :",
-                options: [
-                    "Il possède un coût de production absolu plus faible que les autres",
-                    "Il possède un avantage comparatif en termes de productivité relative",
-                    "Il peut produire tous les biens nécessaires à sa consommation",
-                    "Il dispose des salaires les plus bas du marché mondial"
-                ],
-                correct: 1,
-                explain: "Même si on est moins bon partout, on se spécialise là où on est le 'moins mauvais' (coût d'opportunité)."
-            },
-            {
-                q: "17. Le paradoxe de Leontief a mis en évidence que :",
-                options: [
-                    "Les pays riches exportent des produits intensifs en travail",
-                    "Les pays pauvres exportent des produits intensifs en capital",
-                    "Le commerce international ne profite pas à tous les pays",
-                    "Les dotations factorielles ne suffisent pas à tout expliquer"
-                ],
-                correct: 0,
-                explain: "Les USA, riches en capital, exportaient pourtant beaucoup de biens intensifs en travail (qualifié), contredisant HOS simple."
-            },
-            {
-                q: "18. Qu'est-ce que la Division Internationale du Travail ?",
-                options: [
-                    "La création d'une monnaie unique pour faciliter les échanges",
-                    "La répartition mondiale des étapes de production entre les pays",
-                    "La mise en place de barrières douanières pour protéger l'emploi",
-                    "La libre circulation des travailleurs à travers les frontières"
-                ],
-                correct: 1,
-                explain: "C'est la spécialisation des pays : certains font la conception, d'autres l'assemblage, d'autres fournissent les matières premières."
-            },
-            
-            // --- INÉGALITÉS ---
-            {
-                q: "19. Que représente graphiquement la courbe de Lorenz ?",
-                options: [
-                    "La relation inverse entre le chômage et l'inflation",
-                    "La répartition des revenus cumulés dans la population",
-                    "L'évolution des inégalités au cours du développement",
-                    "La variation du taux d'imposition selon le revenu"
-                ],
-                correct: 1,
-                explain: "Plus la courbe s'éloigne de la diagonale, plus la répartition des richesses est inégalitaire."
-            },
-            {
-                q: "20. L'indice de Gini est égal à 0 lorsque :",
-                options: [
-                    "Une seule personne détient la totalité des richesses du pays",
-                    "La répartition des richesses est parfaitement égalitaire",
-                    "Le pays atteint son niveau maximal de développement humain",
-                    "Le taux de pauvreté est nul dans l'ensemble de la population"
-                ],
-                correct: 1,
-                explain: "0 = Égalité parfaite. 1 = Inégalité totale."
-            },
+        // --- BASE DE DONNÉES DES 100 MISSIONS AVEC DÉTAILS ---
+        // Format : {id, p: parentID, x, y, icon, e: isEpic, t: Titre, d: Description courte, dt: Objectif détaillé}
+        const rawMissions = [
+            // TRONC PRINCIPAL (Y=15)
+            {id: 1, p: 0, x: 10, y: 15, e: false, icon: "🪵", t: "L'Éveil", d: "Cassez du bois.", dt: "Récoltez au moins 10 bûches de n'importe quel arbre. C'est la première étape indispensable pour fabriquer votre établi." },
+            {id: 2, p: 1, x: 13, y: 15, e: false, icon: "⛏️", t: "L'Âge de Pierre", d: "Améliorez vos outils.", dt: "Fabriquez un set complet d'outils en pierre (Pioche, Hache, Épée, Pelle) et un fourneau." },
+            {id: 3, p: 2, x: 16, y: 15, e: false, icon: "🪨", t: "Maître Mineur", d: "Le premier fer.", dt: "Faites fondre un stack complet (64) de minerai de fer brut pour obtenir vos premiers lingots." },
+            {id: 4, p: 3, x: 19, y: 15, e: false, icon: "💎", t: "L'Éclat Bleu", d: "Trouvez des diamants.", dt: "Mineurs de l'extrême, ramenez au moins 5 diamants à la surface. Ne tombez pas dans la lave !" },
+            {id: 5, p: 4, x: 22, y: 15, e: false, icon: "⬛", t: "Larmes Noires", d: "Minez de l'obsidienne.", dt: "Utilisez votre pioche en diamant flambant neuve pour récupérer 14 blocs d'obsidienne." },
+            {id: 6, p: 5, x: 25, y: 15, e: true, icon: "🪟", t: "Vers les Enfers", d: "Entrez dans le Nether.", dt: "Construisez un portail du Nether esthétique (pas juste un rectangle) et traversez-le pour la première fois." },
+            {id: 7, p: 6, x: 28, y: 15, e: false, icon: "🏰", t: "La Forteresse", d: "Explorez les flammes.", dt: "Trouvez une forteresse du Nether, tuez des Blazes et ramenez 10 bâtons de Blaze." },
+            {id: 8, p: 7, x: 31, y: 15, e: false, icon: "👁️", t: "L'Oeil qui voit tout", d: "Trouvez le Stronghold.", dt: "Utilisez vos yeux de l'Ender pour localiser le Stronghold souterrain. Sécurisez la salle du portail." },
+            {id: 9, p: 8, x: 34, y: 15, e: false, icon: "🌌", t: "Le Grand Saut", d: "Traversez le vide.", dt: "Placez les yeux manquants dans le cadre et sautez dans le portail de l'End." },
+            {id: 10, p: 9, x: 37, y: 15, e: true, icon: "🐉", t: "SLAYER OF WORLDS", d: "Tuez l'Ender Dragon.", dt: "Détruisez les cristaux de l'End et abattez le dragon. N'oubliez pas de récupérer votre XP et l'oeuf !" },
+            {id: 100, p: 10, x: 41, y: 15, e: true, icon: "👑", t: "L'EMPIRE ACHEVÉ", d: "L'Ultime défi builder.", dt: "Construisez une mégabase suspendue dans le ciel (ou dans le vide de l'End), nécessitant plus de 50 000 blocs placés à la main." },
 
-            // --- CONCEPTS AVANCÉS & PIÈGES ---
-            {
-                q: "21. L'aléa moral se manifeste lorsque :",
-                options: [
-                    "Un agent prend plus de risques car il se sait protégé",
-                    "Un agent cache des informations avant la signature du contrat",
-                    "Un agent refuse de coopérer par manque de confiance",
-                    "Un agent rationnel maximise son utilité sous contrainte"
-                ],
-                correct: 0,
-                explain: "C'est un problème post-contractuel. Ex: je roule mal car je suis assuré."
-            },
-            {
-                q: "22. Le dilemme du prisonnier démontre que :",
-                options: [
-                    "La poursuite de l'intérêt individuel mène à l'optimum collectif",
-                    "La poursuite de l'intérêt individuel mène à un résultat sous-optimal",
-                    "La coopération est naturelle chez les agents économiques rationnels",
-                    "L'intervention de l'État est inutile pour réguler les marchés"
-                ],
-                correct: 1,
-                explain: "Sans coopération, les deux prisonniers se dénoncent et finissent avec une peine plus lourde."
-            },
-            {
-                q: "23. Une externalité négative est définie comme :",
-                options: [
-                    "Un échange marchand qui se solde par une perte financière",
-                    "Un impact néfaste sur un tiers sans compensation monétaire",
-                    "Une baisse de la production due à une mauvaise gestion",
-                    "Une taxe imposée par le gouvernement sur les polluants"
-                ],
-                correct: 1,
-                explain: "Le marché ne 'voit' pas ce coût (ex: pollution), donc il n'y a pas de prix pour le compenser."
-            },
-            {
-                q: "24. La loi des rendements marginaux décroissants implique que :",
-                options: [
-                    "La production totale diminue quand on ajoute des facteurs",
-                    "Chaque unité supplémentaire de facteur produit moins que la précédente",
-                    "Les coûts de production diminuent avec la quantité produite",
-                    "La rentabilité financière de l'entreprise baisse avec le temps"
-                ],
-                correct: 1,
-                explain: "Attention : la production totale augmente encore, mais de moins en moins vite (la dérivée baisse)."
-            },
-            {
-                q: "25. Le coût d'opportunité correspond à :",
-                options: [
-                    "La somme d'argent déboursée pour acquérir un bien",
-                    "La valeur de la meilleure option à laquelle on renonce",
-                    "Le coût supplémentaire pour produire une unité de plus",
-                    "La marge réalisée sur la vente d'un produit final"
-                ],
-                correct: 1,
-                explain: "Choisir c'est renoncer. Le coût d'aller au cinéma, c'est le prix du billet + ce que j'aurais pu faire de ce temps."
-            },
-            {
-                q: "26. Une politique de relance budgétaire consiste à :",
-                options: [
-                    "Augmenter les taux d'intérêt pour freiner l'inflation",
-                    "Baisser les dépenses publiques pour réduire le déficit",
-                    "Augmenter les dépenses publiques pour stimuler la demande",
-                    "Flexibiliser le marché du travail pour créer de l'emploi"
-                ],
-                correct: 2,
-                explain: "Vision Keynésienne : on injecte de l'argent (G) pour faire jouer le multiplicateur."
-            },
-            {
-                q: "27. Le capital humain est constitué par :",
-                options: [
-                    "L'ensemble des machines utilisées par les travailleurs",
-                    "Le stock de connaissances et de santé des travailleurs",
-                    "L'épargne accumulée par les ménages sur leurs comptes",
-                    "La population totale en âge de travailler dans le pays"
-                ],
-                correct: 1,
-                explain: "C'est une richesse immatérielle incorporée dans les individus (éducation, expérience)."
-            },
-            {
-                q: "28. La concurrence monopolistique désigne une situation où :",
-                options: [
-                    "Une seule entreprise domine totalement le marché",
-                    "Quelques grandes entreprises s'entendent sur les prix",
-                    "De nombreuses entreprises vendent des produits différenciés",
-                    "L'État détient le monopole de la production du bien"
-                ],
-                correct: 2,
-                explain: "Comme les restaurants ou les vêtements. Il y a concurrence, mais chaque produit est un peu unique (petit monopole)."
-            },
-            {
-                q: "29. Qu'est-ce que le PIB potentiel ?",
-                options: [
-                    "Le niveau de production maximal sans générer d'inflation",
-                    "Le niveau de production espéré par le gouvernement",
-                    "Le niveau de production incluant l'économie souterraine",
-                    "Le niveau de production si le chômage était nul"
-                ],
-                correct: 0,
-                explain: "C'est la capacité maximale soutenable de l'économie. Au-delà, c'est la surchauffe (inflation)."
-            },
-            {
-                q: "30. La tertiarisation de l'économie correspond à :",
-                options: [
-                    "La délocalisation des industries vers le tiers-monde",
-                    "La division de l'économie en trois secteurs distincts",
-                    "La montée en puissance des services dans le PIB",
-                    "La précarisation croissante des contrats de travail"
-                ],
-                correct: 2,
-                explain: "Passage d'une économie industrielle à une économie de services (commerces, banques, santé...)."
-            },
-            {
-                q: "31. Un bien public est caractérisé par :",
-                options: [
-                    "La rivalité et l'excluabilité de sa consommation",
-                    "La non-rivalité et la non-excluabilité de sa consommation",
-                    "Sa production exclusive par des entreprises publiques",
-                    "Son financement uniquement par l'impôt sur le revenu"
-                ],
-                correct: 1,
-                explain: "Ex: Éclairage public. Mon utilisation n'empêche pas la tienne (non-rival) et on ne peut empêcher personne d'en profiter (non-excluable)."
-            },
-            {
-                q: "32. L'effet d'éviction se produit lorsque :",
-                options: [
-                    "Les importations remplacent la production nationale",
-                    "Les dépenses publiques remplacent l'investissement privé",
-                    "Les robots remplacent les travailleurs non qualifiés",
-                    "Les grandes entreprises éliminent les petites PME"
-                ],
-                correct: 1,
-                explain: "L'État emprunte trop, fait monter les taux d'intérêt, et le privé ne peut plus emprunter pour investir."
-            },
-            {
-                q: "33. La courbe de Phillips met en relation :",
-                options: [
-                    "Le taux de croissance et le taux d'investissement",
-                    "Le taux de chômage et le taux de variation des salaires",
-                    "Le niveau des impôts et les recettes fiscales totales",
-                    "La quantité de monnaie et le niveau général des prix"
-                ],
-                correct: 1,
-                explain: "Arbitrage historique : pour baisser le chômage, il faut accepter un peu d'inflation (hausse des salaires)."
-            },
-            {
-                q: "34. Le protectionnisme éducateur vise à :",
-                options: [
-                    "Protéger temporairement les industries naissantes",
-                    "Protéger durablement les secteurs stratégiques",
-                    "Interdire totalement les importations étrangères",
-                    "Taxer les produits ne respectant pas les normes"
-                ],
-                correct: 0,
-                explain: "Théorie de Friedrich List. On protège le bébé industrie le temps qu'il devienne fort (adulte)."
-            },
-            {
-                q: "35. L'offre globale est une fonction :",
-                options: [
-                    "Croissante du niveau général des prix",
-                    "Décroissante du niveau général des prix",
-                    "Indépendante du niveau général des prix",
-                    "Dépendante du taux de change uniquement"
-                ],
-                correct: 0,
-                explain: "Si les prix de vente augmentent, les entreprises sont incitées à produire plus."
-            },
-            {
-                q: "36. La rationalité limitée signifie que les agents :",
-                options: [
-                    "Sont incapables de prendre des décisions logiques",
-                    "Agissent toujours sous le coup de l'émotion",
-                    "Optimisent leurs choix avec une information imparfaite",
-                    "Cherchent systématiquement à nuire à leurs concurrents"
-                ],
-                correct: 2,
-                explain: "On est rationnel, mais on n'a pas la capacité de tout calculer ni toute l'info (Simon). On cherche une solution satisfaisante, pas optimale."
-            },
-            {
-                q: "37. Le taux de chômage naturel correspond au :",
-                options: [
-                    "Chômage frictionnel ajouté au chômage structurel",
-                    "Chômage conjoncturel ajouté au chômage saisonnier",
-                    "Niveau de chômage le plus bas jamais enregistré",
-                    "Niveau de chômage souhaité par le gouvernement"
-                ],
-                correct: 0,
-                explain: "C'est le chômage plancher qu'on ne peut pas résorber par la simple relance de la demande."
-            },
-            {
-                q: "38. La trappe à liquidité désigne une situation où :",
-                options: [
-                    "Les banques refusent de prêter aux entreprises",
-                    "La politique monétaire devient inefficace car les taux sont bas",
-                    "Les ménages dépensent tout leur revenu immédiatement",
-                    "L'inflation devient incontrôlable et hyper-inflationniste"
-                ],
-                correct: 1,
-                explain: "Même si on injecte de la monnaie, les agents la thésaurisent (gardent en cash) au lieu de l'investir. Keynes."
-            },
-            {
-                q: "39. Un bien Giffen est un bien dont :",
-                options: [
-                    "La demande diminue quand le revenu augmente",
-                    "La demande augmente quand son prix augmente",
-                    "La consommation est interdite par la loi",
-                    "La production est nocive pour l'environnement"
-                ],
-                correct: 1,
-                explain: "Paradoxe : le pain augmente, mais comme je suis pauvre, je renonce à la viande et j'achète ENCORE PLUS de pain pour survivre."
-            },
-            {
-                q: "40. La désindustrialisation est souvent causée par :",
-                options: [
-                    "La baisse de la productivité dans l'industrie",
-                    "Les gains de productivité et la concurrence internationale",
-                    "L'augmentation des tarifs douaniers sur les imports",
-                    "La baisse de la demande pour les produits manufacturés"
-                ],
-                correct: 1,
-                explain: "On produit plus avec moins de gens (gains de prod) et on importe plus (concurrence). L'emploi industriel chute."
-            },
-            {
-                q: "41. L'Indice de Développement Humain intègre :",
-                options: [
-                    "Le PIB, le taux de chômage et l'inflation",
-                    "Le revenu, l'espérance de vie et l'éducation",
-                    "La liberté de la presse et les droits de l'homme",
-                    "L'empreinte écologique et les émissions de CO2"
-                ],
-                correct: 1,
-                explain: "PIB/habitant (niveau de vie), Espérance de vie (santé), Durée de scolarisation (savoir)."
-            },
-            {
-                q: "42. Le libre-échange est considéré comme un jeu :",
-                options: [
-                    "À somme nulle où les gains des uns sont les pertes des autres",
-                    "À somme positive où tous les pays gagnent globalement",
-                    "À somme négative où la concurrence détruit de la valeur",
-                    "Strictement réservé aux pays développés du Nord"
-                ],
-                correct: 1,
-                explain: "Ricardo/HOS : la spécialisation augmente la production mondiale totale. Tout le monde peut gagner (en théorie)."
-            },
-            {
-                q: "43. Une bulle spéculative se forme lorsque :",
-                options: [
-                    "Le prix d'un actif s'éloigne durablement de sa valeur fondamentale",
-                    "L'offre d'un bien dépasse largement la demande sur le marché",
-                    "L'État fixe artificiellement le prix d'un bien essentiel",
-                    "L'inflation dépasse le seuil critique de 10% par an"
-                ],
-                correct: 0,
-                explain: "On achète juste pour revendre plus cher, pas pour la valeur réelle du truc. Jusqu'à ce que ça explose."
-            },
-            {
-                q: "44. La politique monétaire restrictive vise à :",
-                options: [
-                    "Relancer la croissance par la baisse des taux",
-                    "Combattre l'inflation par la hausse des taux",
-                    "Dévaluer la monnaie pour favoriser l'export",
-                    "Augmenter la masse monétaire en circulation"
-                ],
-                correct: 1,
-                explain: "On rend l'argent plus cher et plus rare pour refroidir l'économie et casser l'inflation."
-            },
-            {
-                q: "45. Le multiplicateur d'investissement est d'autant plus fort que :",
-                options: [
-                    "La propension marginale à épargner est élevée",
-                    "La propension marginale à consommer est élevée",
-                    "Le taux d'imposition sur les sociétés est élevé",
-                    "Les importations représentent une part importante du PIB"
-                ],
-                correct: 1,
-                explain: "Si les gens consomment tout revenu supplémentaire, l'argent circule et se multiplie. S'ils épargnent, ça bloque."
-            },
-            {
-                q: "46. La croissance extensive bute inévitablement sur :",
-                options: [
-                    "La loi des rendements marginaux décroissants",
-                    "Le manque de main-d'œuvre qualifiée disponible",
-                    "L'insuffisance de la demande globale effective",
-                    "La saturation des marchés internationaux"
-                ],
-                correct: 0,
-                explain: "Ajouter des machines sans changer la technologie finit par ne plus rien rapporter de plus."
-            },
-            {
-                q: "47. L'économie de l'offre préconise de :",
-                options: [
-                    "Soutenir le pouvoir d'achat des ménages modestes",
-                    "Baisser les impôts et les charges des entreprises",
-                    "Nationaliser les secteurs clés de l'économie",
-                    "Augmenter les dépenses publiques d'infrastructure"
-                ],
-                correct: 1,
-                explain: "Inspiré de Laffer ('trop d'impôt tue l'impôt'). On aide les entreprises pour qu'elles produisent plus et embauchent."
-            },
-            {
-                q: "48. Le développement durable repose sur trois piliers :",
-                options: [
-                    "Économique, Social et Environnemental",
-                    "Politique, Culturel et Technologique",
-                    "Public, Privé et Associatif",
-                    "National, Européen et Mondial"
-                ],
-                correct: 0,
-                explain: "Concilier la croissance (éco), la justice (social) et la planète (environ)."
-            },
-            {
-                q: "49. Une asymétrie d'information ex-ante conduit à :",
-                options: [
-                    "Un phénomène d'anti-sélection ou sélection adverse",
-                    "Un phénomène d'aléa moral ou risque moral",
-                    "Une concurrence pure et parfaite sur le marché",
-                    "Une égalisation des prix des facteurs de production"
-                ],
-                correct: 0,
-                explain: "Avant le contrat (ex-ante) : le vendeur de voiture d'occasion sait qu'elle est pourrie, pas l'acheteur. Les mauvaises voitures chassent les bonnes."
-            },
-            {
-                q: "50. Le dumping social consiste à :",
-                options: [
-                    "Vendre à perte pour éliminer les concurrents",
-                    "Baisser les normes sociales pour attirer les entreprises",
-                    "Interdire les syndicats dans les zones franches",
-                    "Subventionner les exportations par l'État"
-                ],
-                correct: 1,
-                explain: "C'est une concurrence déloyale par le bas : on réduit la protection des travailleurs pour être moins cher que les voisins."
-            }
+            // BRANCHE 1 : ARCHITECTURE (Vers le haut, parent 1)
+            {id: 11, p: 1, x: 10, y: 12, e: false, icon: "🏕️", t: "Bivouac", d: "Un abri pour la nuit.", dt: "Construisez une petite cabane avec un lit, un feu de camp, et un tonneau. Sécurisez la zone avec des torches." },
+            {id: 12, p: 11, x: 10, y: 9, e: false, icon: "🚪", t: "Maison de Maître", d: "Une vraie base.", dt: "Construisez une maison utilisant au moins 4 blocs de construction différents (ex: pierre taillée, bois de chêne, briques, verre)." },
+            {id: 13, p: 12, x: 10, y: 6, e: false, icon: "🌉", t: "Le Grand Pont", d: "Reliez les terres.", dt: "Créez un pont détaillé de plus de 30 blocs de long traversant une rivière ou un ravin." },
+            {id: 14, p: 13, x: 13, y: 6, e: false, icon: "⚓", t: "Quartier Maritime", d: "Accès à l'océan.", dt: "Construisez un port de pêche avec des quais en bois, des grues et des tonneaux stockés." },
+            {id: 15, p: 14, x: 13, y: 9, e: true, icon: "🚢", t: "Le Galion", d: "Un navire impressionnant.", dt: "Construisez un grand bateau à voiles (minimum 20x10 blocs) amarré à votre port." },
+            {id: 16, p: 15, x: 13, y: 12, e: false, icon: "🏛️", t: "Hôtel de Ville", d: "Le centre administratif.", dt: "Édifiez un bâtiment majestueux avec de grandes colonnes et un toit en cuivre." },
+            {id: 17, p: 11, x: 8, y: 12, e: false, icon: "⚒️", t: "Scierie", d: "Traitement du bois.", dt: "Créez un bâtiment industriel avec des scies circulaires décoratives (tailleurs de pierre) et des troncs empilés." },
+            {id: 18, p: 17, x: 8, y: 9, e: false, icon: "🕰️", t: "La Tour de l'Horloge", d: "Donnez l'heure.", dt: "Une tour de 30 blocs de haut avec une horloge fonctionnelle en Redstone (capteur de lumière)." },
+            {id: 19, p: 18, x: 8, y: 6, e: false, icon: "🏰", t: "Château Fort", d: "Murs et douves.", dt: "Construisez un château fortifié avec au moins 4 tours de garde et des créneaux." },
+            {id: 20, p: 19, x: 6, y: 6, e: false, icon: "⛪", t: "Cathédrale", d: "Lumière divine.", dt: "Élevez une cathédrale gothique. Les vitraux doivent utiliser du verre teinté de différentes couleurs." },
+            {id: 21, p: 20, x: 6, y: 9, e: false, icon: "🧱", t: "Grande Muraille", d: "Fermez la ville.", dt: "Entourez toute votre ville principale d'un mur de protection d'au moins 5 blocs de haut." },
+            {id: 22, p: 21, x: 6, y: 12, e: true, icon: "🗿", t: "Terraforming Divin", d: "Modifiez la carte.", dt: "Rasez une montagne entière OU transformez un biome désert en une immense forêt luxuriante artificielle." },
+
+            // BRANCHE 2 : AGRICULTURE & VILLAGE (Vers le bas, parent 2)
+            {id: 23, p: 2, x: 13, y: 18, e: false, icon: "🍞", t: "Autosuffisance", d: "Ne mourrez plus de faim.", dt: "Créez un grand champ de blé, carottes et patates avec un système d'irrigation propre." },
+            {id: 24, p: 23, x: 13, y: 21, e: false, icon: "🐄", t: "Élevage Intensif", d: "Viande et cuir.", dt: "Construisez des enclos séparés pour les vaches, moutons, cochons et poulets. Ayez 10 animaux de chaque." },
+            {id: 25, p: 24, x: 13, y: 24, e: false, icon: "🌾", t: "Moulin à Vent", d: "Architecture rurale.", dt: "Construisez un grand moulin à vent décoratif avec des pales en laine blanche posé sur une colline." },
+            {id: 26, p: 25, x: 10, y: 24, e: false, icon: "👨‍🌾", t: "Les Réfugiés", d: "Trouvez des PNJ.", dt: "Transportez 2 villageois jusqu'à votre base (en bateau ou minecart) et enfermez-les en sécurité." },
+            {id: 27, p: 26, x: 10, y: 21, e: false, icon: "🛏️", t: "Explosion Démographique", d: "Reproduction.", dt: "Créez un dortoir avec 20 lits et donnez-leur de la nourriture pour multiplier les villageois." },
+            {id: 28, p: 27, x: 10, y: 18, e: true, icon: "🏪", t: "LE GRAND MARCHÉ", d: "Tous les métiers.", dt: "Construisez un marché structuré avec 1 kiosque par métier (13 métiers au total). Optimisez vos échanges." },
+            {id: 29, p: 23, x: 16, y: 18, e: false, icon: "🍯", t: "Apiculteur", d: "Ferme à miel.", dt: "Créez une serre botanique contenant 5 ruches et automatisez la récolte de miel avec des distributeurs." },
+            {id: 30, p: 29, x: 16, y: 21, e: false, icon: "🐑", t: "Arc-en-ciel", d: "Toutes les laines.", dt: "Une ferme automatique à laine possédant un mouton de chacune des 16 couleurs du jeu." },
+            {id: 31, p: 30, x: 16, y: 24, e: false, icon: "🥕", t: "Esclavagisme Agricole", d: "Ferme auto à PNJ.", dt: "Utilisez un fermier PNJ pour qu'il plante et récolte des cultures, et volez ses items via un entonnoir." },
+            {id: 32, p: 31, x: 19, y: 24, e: false, icon: "📚", t: "Le Savoir", d: "Livre Raccommodage.", dt: "Forcez un villageois bibliothécaire à vous proposer l'enchantement 'Mending' (Raccommodage) à bas prix." },
+            {id: 33, p: 32, x: 19, y: 21, e: false, icon: "🧟", t: "Soins intensifs", d: "Zombification.", dt: "Laissez un zombie infecter un villageois, puis soignez-le avec une pomme d'or pour baisser ses prix." },
+            {id: 34, p: 33, x: 19, y: 18, e: false, icon: "🎣", t: "Le Pêcheur", d: "AFK Fish.", dt: "Créez une petite cabane de pêche avec un système pour récupérer automatiquement des livres enchantés." },
+
+            // BRANCHE 3 : MINAGE & INDUSTRIE REDSTONE (Vers le haut, parent 4)
+            {id: 35, p: 4, x: 19, y: 12, e: false, icon: "🛤️", t: "Mine Optimisée", d: "Creusez intelligemment.", dt: "Mettez en place un grand tunnel principal au niveau Y=-58 avec des branches espacées de 3 blocs." },
+            {id: 36, p: 35, x: 19, y: 9, e: false, icon: "⚙️", t: "Premières Usines", d: "Ferme à fer.", dt: "Construisez une ferme à fer basique (avec zombie et villageois) générant au moins 300 lingots par heure." },
+            {id: 37, p: 36, x: 19, y: 6, e: false, icon: "📦", t: "Salle des Coffres", d: "Stockage massif.", dt: "Construisez une grande salle contenant au moins 100 doubles coffres bien alignés et nommés." },
+            {id: 38, p: 37, x: 16, y: 6, e: true, icon: "💻", t: "TRI AUTOMATIQUE", d: "Redstone avancée.", dt: "Installez un système de tri automatique derrière vos coffres capable de filtrer 40 items différents." },
+            {id: 39, p: 38, x: 16, y: 9, e: false, icon: "💥", t: "Usine à Poudre", d: "Ferme à Creeper.", dt: "Construisez une ferme produisant de la poudre à canon (utile pour les feux d'artifice et la TNT)." },
+            {id: 40, p: 39, x: 16, y: 12, e: false, icon: "🚀", t: "Aérospatial", d: "Feux d'artifice auto.", dt: "Couplez votre ferme à Creeper avec une ferme à canne à sucre pour crafter des roquettes à l'infini." },
+            {id: 41, p: 35, x: 22, y: 12, e: false, icon: "🟢", t: "Usine Visqueuse", d: "Ferme à Slime.", dt: "Trouvez un 'Slime Chunk', videz-le de la surface jusqu'à la bedrock, et installez des plateformes de spawn." },
+            {id: 42, p: 41, x: 22, y: 9, e: false, icon: "🚂", t: "Gare Centrale", d: "Réseau ferré.", dt: "Créez une gare permettant de sélectionner sa destination en appuyant sur un bouton." },
+            {id: 43, p: 42, x: 22, y: 6, e: false, icon: "⛏️", t: "Outils Divins", d: "Enchantements max.", dt: "Possédez un set d'outils (Pioche, Hache, Pelle) avec Efficacité 5, Solidité 3, et Raccommodage." },
+            {id: 44, p: 43, x: 25, y: 6, e: false, icon: "🕳️", t: "Le Grand Vide", d: "Périmètre de farm.", dt: "Creusez un périmètre complet de 128x128 blocs jusqu'à la bedrock (sans utiliser de TNT dupe)." },
+            {id: 45, p: 44, x: 25, y: 9, e: false, icon: "🚪", t: "Porte Secrète", d: "Mécanisme caché.", dt: "Construisez une porte en redstone (minimum 3x3) cachée dans une montagne ou derrière une bibliothèque." },
+            {id: 46, p: 45, x: 25, y: 12, e: false, icon: "🦑", t: "L'Encre Noir", d: "Ferme à Poulpes.", dt: "Construisez une ferme générant de l'encre noire, essentielle pour le béton noir de vos constructions." },
+
+            // BRANCHE 4 : NETHER & MAGIE (Vers le bas, parent 6)
+            {id: 47, p: 6, x: 25, y: 18, e: false, icon: "🧱", t: "Débris Antiques", d: "Minez de la Netherite.", dt: "Trouvez vos premiers débris antiques dans les profondeurs du Nether (utilisez la technique des lits)." },
+            {id: 48, p: 47, x: 25, y: 21, e: true, icon: "🪖", t: "NETHERITE CHAMPION", d: "Armure ultime.", dt: "Améliorez toutes les pièces de votre armure en diamant vers la Netherite." },
+            {id: 49, p: 48, x: 25, y: 24, e: false, icon: "🐖", t: "Diplomatie Piglin", d: "Troc automatique.", dt: "Faites une salle sécurisée pour donner de l'or aux Piglins et récupérer leurs objets automatiquement." },
+            {id: 50, p: 49, x: 22, y: 24, e: false, icon: "👑", t: "Le Roi de l'Or", d: "Ferme à Or.", dt: "Montez au-dessus du plafond de bedrock du Nether et construisez une immense ferme à Zombie Piglins." },
+            {id: 51, p: 50, x: 22, y: 21, e: false, icon: "❄️", t: "Autoroute de Glace", d: "Voyage express.", dt: "Créez un réseau de glace bleue dans le Nether reliant vos bases éloignées pour voyager en bateau." },
+            {id: 52, p: 51, x: 22, y: 18, e: false, icon: "🍄", t: "Botanique Infernale", d: "Verrues du Nether.", dt: "Ramenez du sable des âmes et créez une plantation massive de verrues pour l'alchimie." },
+            {id: 53, p: 47, x: 28, y: 18, e: false, icon: "⚗️", t: "L'Alchimiste", d: "Faites des potions.", dt: "Créez une salle des potions avec des alambics. Préparez des potions de soin et de résistance au feu." },
+            {id: 54, p: 53, x: 28, y: 21, e: false, icon: "🔮", t: "Table d'Enchantement", d: "Niveau 30.", dt: "Installez une table d'enchantement au milieu de 15 bibliothèques pour atteindre le niveau maximum." },
+            {id: 55, p: 54, x: 28, y: 24, e: false, icon: "🎶", t: "Le Mélomane", d: "Collection de disques.", dt: "Récupérez au moins 8 disques de musique différents (en faisant tirer un squelette sur un creeper)." },
+            {id: 56, p: 55, x: 31, y: 24, e: false, icon: "📻", t: "Jukebox Auto", d: "Musique continue.", dt: "Faites un système redstone qui insère et joue vos disques en boucle dans votre base." },
+            {id: 57, p: 56, x: 31, y: 21, e: false, icon: "🪦", t: "Le Deep Dark", d: "Trouvez l'Ancienne Cité.", dt: "Aventurez-vous dans les grottes sombres, trouvez une cité ancienne et pillez 5 coffres sans faire de bruit." },
+            {id: 58, p: 57, x: 31, y: 18, e: true, icon: "🦇", t: "SURVIVRE AU WARDEN", d: "Affrontez le cauchemar.", dt: "Réveillez le Warden, survivez à son attaque sonique et réussissez à le tuer (ou à le fuir héroïquement)." },
+
+            // BRANCHE 5 : AVENTURE & BOSS (Vers le haut, parent 8)
+            {id: 59, p: 8, x: 31, y: 12, e: false, icon: "💀", t: "Chasseur de Crânes", d: "Fermez les Wither Squelettes.", dt: "Tuez assez de Wither Squelettes pour réunir 3 crânes noirs. L'épée Looting 3 est fortement conseillée." },
+            {id: 60, p: 59, x: 31, y: 9, e: true, icon: "🌟", t: "VAINCRE LE WITHER", d: "Le boss optionnel.", dt: "Invoquez le Wither loin de votre base et terrassez-le pour obtenir la précieuse Étoile du Nether." },
+            {id: 61, p: 60, x: 31, y: 6, e: false, icon: "🗼", t: "Le Phare", d: "Construisez un Beacon.", dt: "Fabriquez une balise, posez-la sur une pyramide complète de blocs de fer/or pour des buffs infinis." },
+            {id: 62, p: 61, x: 28, y: 6, e: false, icon: "🌈", t: "Beacon Coloré", d: "Customisez la lumière.", dt: "Changez la couleur du rayon de votre beacon avec du verre teinté pour l'assortir à votre base." },
+            {id: 63, p: 62, x: 28, y: 9, e: false, icon: "🔱", t: "Monument Océanique", d: "Tuez les boss poissons.", dt: "Trouvez un monument sous-marin et tuez les 3 Elder Guardians. Récupérez les éponges." },
+            {id: 64, p: 63, x: 28, y: 12, e: false, icon: "🧽", t: "L'Assèchement", d: "Videz le monument.", dt: "Un travail titanesque : utilisez du sable et vos éponges pour retirer 100% de l'eau autour du monument." },
+            {id: 65, p: 59, x: 34, y: 12, e: false, icon: "🌊", t: "Ferme à Guardians", d: "Lanterne des mers infinies.", dt: "Transformez votre monument vidé en une ferme de prismarine produisant massivement." },
+            {id: 66, p: 65, x: 34, y: 9, e: false, icon: "🏹", t: "Mauvais Présage", d: "Déclenchez un raid.", dt: "Tuez un capitaine pillard et entrez dans un village pour déclencher un raid." },
+            {id: 67, p: 66, x: 34, y: 6, e: true, icon: "🦅", t: "HÉROS DU VILLAGE", d: "Gagnez le raid.", dt: "Repoussez toutes les vagues du raid et obtenez vos premiers Totems d'Immortalité." },
+            {id: 68, p: 67, x: 37, y: 6, e: false, icon: "💀", t: "Raid Automatique", d: "Usine à totems.", dt: "Construisez une ferme à raid au-dessus de l'océan pour looter des émeraudes et totems à l'infini." },
+            {id: 69, p: 68, x: 37, y: 9, e: false, icon: "👿", t: "Le Manoir", d: "Explorez les bois.", dt: "Achetez une carte chez un cartographe, voyagez sur 10 000 blocs et videz un Manoir de l'Illusion." },
+            {id: 70, p: 69, x: 37, y: 12, e: false, icon: "☠️", t: "Wither x3", d: "Défi ultime Wither.", dt: "Combattez 3 Withers en même temps. Uniquement pour les fous ou ceux très bien préparés." },
+
+            // BRANCHE 6 : MEGABUILDS & END (Vers le bas, parent 10)
+            {id: 71, p: 10, x: 37, y: 18, e: false, icon: "🥚", t: "Le Trophée", d: "L'oeuf du dragon.", dt: "Récupérez l'oeuf de l'Ender Dragon en utilisant la technique du piston ou de la torche." },
+            {id: 72, p: 71, x: 37, y: 21, e: true, icon: "🦋", t: "LES ÉLYTRES", d: "Apprenez à voler.", dt: "Explorez les îles de l'End, trouvez une Cité et un navire volant pour récupérer vos premières Élytres." },
+            {id: 73, p: 72, x: 37, y: 24, e: false, icon: "🛫", t: "Tour de Lancement", d: "Piste de décollage.", dt: "Construisez une haute tour dans votre base (avec ascenseur à eau ou soul sand) dédiée au décollage en Elytres." },
+            {id: 74, p: 73, x: 34, y: 24, e: false, icon: "📦", t: "Ferme à Shulkers", d: "Boîtes infinies.", dt: "Faites l'exploit redstone de rapatrier un Shulker dans l'Overworld pour créer une usine à boîtes." },
+            {id: 75, p: 74, x: 34, y: 21, e: false, icon: "🔮", t: "Ferme à Endermen", d: "Niveau 100 en 5min.", dt: "Sous l'île de l'End, construisez une plateforme de farm utilisant une Endermite comme appât." },
+            {id: 76, p: 75, x: 34, y: 18, e: false, icon: "🌑", t: "Void Base", d: "Habiter le néant.", dt: "Aménagez une véritable base sous l'île centrale de l'End, juste au-dessus du vide mortel." },
+            {id: 77, p: 71, x: 40, y: 18, e: false, icon: "🌿", t: "End Terraforming", d: "Verdir la fin.", dt: "Recouvrez une grande partie de l'île centrale de l'End avec de la terre, de l'herbe et des arbres." },
+            {id: 78, p: 77, x: 40, y: 21, e: false, icon: "🧭", t: "Mur des Cartes", d: "Mappez l'empire.", dt: "Créez un mur contenant au moins 16 cartes de niveau de zoom 3, affichant tout votre empire vu du ciel." },
+            {id: 79, p: 78, x: 40, y: 24, e: false, icon: "🎨", t: "Map Art", d: "Dessin géant.", dt: "Aplatissez une zone de 128x128 blocs et posez des blocs pour dessiner un logo ou un pixel art visible sur une carte." },
+            {id: 80, p: 79, x: 43, y: 24, e: false, icon: "🐉", t: "Le Retour du Roi", d: "Réinvoquez le dragon.", dt: "Crafter 4 cristaux de l'End, placez-les sur le portail et tuez le dragon une seconde fois." },
+            {id: 81, p: 80, x: 43, y: 21, e: false, icon: "🌍", t: "How Did We Get Here?", d: "Succès caché.", dt: "Obtenez absolument tous les effets de potion/statut du jeu en même temps." },
+            {id: 82, p: 81, x: 43, y: 18, e: false, icon: "🏆", t: "Collectionneur", d: "Musée.", dt: "Créez une salle exposant chaque bloc, chaque tête de mob, et les objets uniques du jeu." },
+
+            // EXTENSIONS DE BRANCHES (Pour arriver à 99)
+            // Ajouts Architecture
+            {id: 83, p: 20, x: 6, y: 3, e: false, icon: "⛲", t: "Fontaine Centrale", d: "Place publique.", dt: "Une immense place pavée avec une fontaine géante au centre de votre ville." },
+            {id: 84, p: 83, x: 8, y: 3, e: false, icon: "🌳", t: "Jardin Botanique", d: "Toutes les plantes.", dt: "Un immense dôme de verre abritant chaque espèce d'arbre et de fleur de Minecraft." },
+            {id: 85, p: 84, x: 10, y: 3, e: false, icon: "🎭", t: "L'Opéra", d: "Culture.", dt: "Construisez un théâtre/opéra avec une scène, des loges et des rideaux en laine rouge." },
+            {id: 86, p: 85, x: 13, y: 3, e: false, icon: "🌋", t: "Volcan Artificiel", d: "Terraforming extrême.", dt: "Construisez un volcan crachant de la lave, avec potentiellement une base secrète à l'intérieur." },
+            // Ajouts Agriculture
+            {id: 87, p: 26, x: 10, y: 27, e: false, icon: "🐢", t: "Protection Animale", d: "Ferme à tortues.", dt: "Élevez des tortues, protégez leurs oeufs et récupérez assez d'écailles pour un casque." },
+            {id: 88, p: 87, x: 13, y: 27, e: false, icon: "🐸", t: "Les Grenouilles", d: "Lampes colorées.", dt: "Faites manger des magma cubes à des grenouilles pour obtenir les 3 couleurs de 'Froglights'." },
+            {id: 89, p: 88, x: 16, y: 27, e: false, icon: "🐠", t: "L'Aquarium", d: "Axolotls.", dt: "Un grand bassin décoratif contenant des poissons tropicaux et l'Axolotl Bleu (extrêmement rare)." },
+            {id: 90, p: 89, x: 19, y: 27, e: false, icon: "🐴", t: "Hippodrome", d: "Piste de course.", dt: "Élevez des chevaux rapides et construisez un grand circuit pour faire la course avec vos amis." },
+            // Ajouts Industrie
+            {id: 91, p: 38, x: 16, y: 3, e: false, icon: "🪨", t: "Ferme à Cobble", d: "Générateur avec TNT.", dt: "Construisez une usine qui produit et détruit de la cobble avec de la TNT automatiquement." },
+            {id: 92, p: 91, x: 19, y: 3, e: false, icon: "🧱", t: "Ferme à Boue", d: "Nouveau bloc.", dt: "Automatisez la transformation de terre en boue, puis en briques de boue pour le build." },
+            {id: 93, p: 92, x: 22, y: 3, e: false, icon: "🪵", t: "Usine à Arbres", d: "Machine à bois.", dt: "Ferme complexe avec TNT dupe pour récolter le bois automatiquement dès que vous plantez la pousse." },
+            // Ajouts Nether
+            {id: 94, p: 50, x: 22, y: 27, e: false, icon: "🔥", t: "Ferme à Magma", d: "Magma cubes.", dt: "Ferme à Magma Cubes dans le biome Basalt Deltas pour la crème de magma." },
+            {id: 95, p: 94, x: 25, y: 27, e: false, icon: "😭", t: "Larmes de Ghast", d: "Ferme à Ghasts.", dt: "Au-dessus du plafond du Nether, créez une usine spécialisée dans l'apparition et l'abattage de Ghasts." },
+            {id: 96, p: 95, x: 28, y: 27, e: false, icon: "🌋", t: "Mines Opti Nether", d: "Quartz à l'infini.", dt: "Mine optimisée à la TNT dans le Nether pour récolter des milliers de blocs de Quartz." },
+            // Ajouts Magie/Aventure
+            {id: 97, p: 64, x: 28, y: 3, e: false, icon: "🧊", t: "Ferme à Glace", d: "Glace bleue.", dt: "Ferme AFK dans un biome neige pour générer la glace de vos autoroutes." },
+            {id: 98, p: 97, x: 31, y: 3, e: false, icon: "🎯", t: "Stand de Tir", d: "Mini-jeu redstone.", dt: "Construisez un mini-jeu avec cibles, lampes redstone et compteur de score automatique." },
+            {id: 99, p: 98, x: 34, y: 3, e: false, icon: "📖", t: "Le Livre d'Histoire", d: "Héritage.", dt: "Écrivez le récit de votre serveur dans un livre et plume, et scellez-le dans le coffre-fort de la ville." }
         ];
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const quizContainer = document.getElementById('quiz');
-            const scoreDisplay = document.getElementById('score-display');
-            let currentScore = 0;
+        // --- VARIABLES GLOBALES ---
+        const mapContainer = document.getElementById('map-container');
+        const nodesLayer = document.getElementById('nodes-layer');
+        const svgLayer = document.getElementById('svg-layer');
+        const tooltip = document.getElementById('tooltip');
+        let savedProgress = JSON.parse(localStorage.getItem('mc_100_v2')) || {};
 
-            if (!quizContainer) {
-                console.error("Erreur : Conteneur quiz non trouvé");
-                return;
+        if(!savedProgress[0]) savedProgress[0] = true; // Racine système
+
+        const GRID_X = 160; 
+        const GRID_Y = 120;
+
+        // --- INITIALISATION ---
+        function initMap() {
+            // Créer les slots HTML
+            rawMissions.forEach(m => {
+                const px = m.x * GRID_X;
+                const py = m.y * GRID_Y;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'node-wrapper';
+                wrapper.style.left = `${px}px`;
+                wrapper.style.top = `${py}px`;
+
+                // Spécial pour le boss final
+                if(m.id === 100) {
+                    wrapper.style.transform = "translate(-50%, -50%) scale(1.3)";
+                }
+
+                wrapper.innerHTML = `
+                    <div class="node-slot" id="slot-${m.id}" onclick="handleNodeClick(${m.id}, event)">
+                        <span class="icon">${m.icon}</span>
+                        <div class="checkmark">✔</div>
+                        <div class="node-title-label">${m.e ? m.t : ''}</div>
+                    </div>
+                `;
+
+                // Tooltip events
+                const slotEl = wrapper.querySelector('.node-slot');
+                slotEl.addEventListener('mouseenter', (e) => showTooltip(e, m));
+                slotEl.addEventListener('mouseleave', hideTooltip);
+
+                nodesLayer.appendChild(wrapper);
+            });
+
+            // Créer les lignes SVG
+            let svgHTML = '';
+            rawMissions.forEach(m => {
+                if (m.p !== 0) {
+                    const parent = rawMissions.find(x => x.id === m.p);
+                    if (parent) {
+                        const sx = parent.x * GRID_X;
+                        const sy = parent.y * GRID_Y;
+                        const ex = m.x * GRID_X;
+                        const ey = m.y * GRID_Y;
+                        // Tracé en angle droit
+                        const path = `M ${sx} ${sy} L ${ex} ${sy} L ${ex} ${ey}`;
+                        svgHTML += `<path id="wire-${m.p}-${m.id}" class="wire" d="${path}" />`;
+                    }
+                }
+            });
+            svgLayer.innerHTML = svgHTML;
+
+            updateVisuals();
+            updateHUD();
+        }
+
+        // --- MOTEUR DE MISE A JOUR (Réécrit et Robuste) ---
+        function updateVisuals() {
+            rawMissions.forEach(m => {
+                const id = m.id;
+                const pId = m.p;
+                const slot = document.getElementById(`slot-${id}`);
+                const wire = document.getElementById(`wire-${pId}-${id}`);
+                
+                const isParentDone = pId === 0 || !!savedProgress[pId];
+                const isDone = !!savedProgress[id];
+
+                // 1. Mise à jour du noeud
+                if (!isParentDone) {
+                    slot.className = `node-slot locked ${m.e ? 'epic' : ''}`;
+                } else {
+                    slot.className = `node-slot ${m.e ? 'epic' : ''} ${isDone ? 'completed' : ''}`;
+                }
+
+                // 2. Mise à jour propre de la Redstone
+                if (wire) {
+                    if (isParentDone && isDone) {
+                        wire.classList.add('active');
+                    } else {
+                        wire.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        function handleNodeClick(id, event) {
+            const mission = rawMissions.find(m => m.id === id);
+            const isParentDone = mission.p === 0 || !!savedProgress[mission.p];
+
+            // Animation de refus si bloqué
+            if (!isParentDone) {
+                const el = document.getElementById(`slot-${id}`);
+                el.classList.add('shaking');
+                setTimeout(() => el.classList.remove('shaking'), 300);
+                return; 
             }
 
-            questions.forEach((item, index) => {
-                // Création de la carte question
-                const card = document.createElement('div');
-                card.className = 'card';
+            // Bascule
+            savedProgress[id] = !savedProgress[id];
+            
+            if (savedProgress[id]) {
+                spawnParticles(event.clientX, event.clientY);
+            } else {
+                lockChildrenCascade(id);
+            }
 
-                // Titre de la question
-                const questionTitle = document.createElement('div');
-                questionTitle.className = 'question';
-                questionTitle.textContent = item.q;
-                card.appendChild(questionTitle);
+            localStorage.setItem('mc_100_v2', JSON.stringify(savedProgress));
+            
+            updateVisuals();
+            updateHUD();
+            showTooltip(event, mission); // Rafraichir le texte du tooltip
+        }
 
-                // Conteneur des options
-                const optionsDiv = document.createElement('div');
-                optionsDiv.className = 'options';
-
-                // Div explicative (créée avant pour référence, mais ajoutée après)
-                const explanationDiv = document.createElement('div');
-                explanationDiv.className = 'explanation';
-
-                // Création des boutons
-                const buttons = [];
-                item.options.forEach((opt, i) => {
-                    const btn = document.createElement('button');
-                    btn.className = 'btn';
-                    btn.textContent = opt;
-                    
-                    // Logique du clic
-                    btn.onclick = () => {
-                        // Désactiver tous les boutons de cette question
-                        buttons.forEach(b => b.disabled = true);
-                        
-                        if (i === item.correct) {
-                            // Bonne réponse
-                            btn.classList.add('correct-answer');
-                            currentScore++;
-                            explanationDiv.innerHTML = "<strong>✅ Correct !</strong> " + item.explain;
-                        } else {
-                            // Mauvaise réponse
-                            btn.classList.add('wrong-answer');
-                            // Montrer la bonne
-                            buttons[item.correct].classList.add('correct-answer');
-                            explanationDiv.innerHTML = "<strong>❌ Erreur.</strong> La bonne réponse était la " + (item.correct + 1) + ".<br>" + item.explain;
-                        }
-                        
-                        // Afficher l'explication et le score
-                        explanationDiv.style.display = 'block';
-                        scoreDisplay.textContent = `${currentScore} / 50`;
-                    };
-
-                    buttons.push(btn);
-                    optionsDiv.appendChild(btn);
-                });
-
-                card.appendChild(optionsDiv);
-                card.appendChild(explanationDiv);
-                quizContainer.appendChild(card);
+        function lockChildrenCascade(parentId) {
+            rawMissions.forEach(m => {
+                if(m.p === parentId && savedProgress[m.id]) {
+                    savedProgress[m.id] = false;
+                    lockChildrenCascade(m.id);
+                }
             });
+        }
+
+        function updateHUD() {
+            const count = Object.keys(savedProgress).filter(k => k !== "0" && savedProgress[k]).length;
+            document.getElementById('xpBar').style.width = `${count}%`;
+            document.getElementById('statsText').innerText = `DÉFIS COMPLÉTÉS: ${count} / 100 (NIVEAU ${count})`;
+        }
+
+        // --- TOOLTIP ---
+        function showTooltip(e, m) {
+            const isParentDone = m.p === 0 || !!savedProgress[m.p];
+            const isDone = !!savedProgress[m.id];
+            
+            const st = document.getElementById('tt-status');
+            if (!isParentDone) {
+                st.innerText = "🔒 VERROUILLÉ (Complétez la mission d'avant)";
+                st.className = "tt-status lock";
+            } else if (isDone) {
+                st.innerText = "✔ MISSION ACCOMPLIE";
+                st.className = "tt-status done";
+            } else {
+                st.innerText = "⭐ DÉFI DISPONIBLE";
+                st.className = "tt-status ready";
+            }
+
+            document.getElementById('tt-title').innerText = m.t;
+            document.getElementById('tt-desc').innerText = m.d;
+            document.getElementById('tt-details').innerText = m.dt;
+
+            tooltip.style.opacity = '1';
+            
+            const moveTooltip = (ev) => {
+                // Ajuster si on sort de l'écran à droite ou en bas
+                let x = ev.clientX + 20;
+                let y = ev.clientY + 20;
+                if(x + 320 > window.innerWidth) x = ev.clientX - 340;
+                if(y + 200 > window.innerHeight) y = ev.clientY - 220;
+                
+                tooltip.style.left = `${x}px`;
+                tooltip.style.top = `${y}px`;
+            };
+            moveTooltip(e);
+            window.addEventListener('mousemove', moveTooltip);
+            tooltip.moveFn = moveTooltip; 
+        }
+
+        function hideTooltip() {
+            tooltip.style.opacity = '0';
+            if (tooltip.moveFn) window.removeEventListener('mousemove', tooltip.moveFn);
+        }
+
+        // --- PARTICULES ---
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = document.getElementById('map-container').clientWidth;
+            canvas.height = document.getElementById('map-container').clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function spawnParticles(screenX, screenY) {
+            const rect = container.getBoundingClientRect();
+            const mapX = (screenX - rect.left) / currentScale;
+            const mapY = (screenY - rect.top) / currentScale;
+
+            for(let i=0; i<40; i++) {
+                particles.push({
+                    x: mapX, y: mapY,
+                    vx: (Math.random() - 0.5) * 16,
+                    vy: (Math.random() - 0.5) * 16 - 6,
+                    life: 1,
+                    color: Math.random() > 0.5 ? '#80ff20' : '#ffff55'
+                });
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for(let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                p.vy += 0.5;
+                p.life -= 0.02;
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                } else {
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = p.life;
+                    ctx.fillRect(p.x, p.y, 8, 8);
+                }
+            }
+            ctx.globalAlpha = 1;
+            requestAnimationFrame(animateParticles);
+        }
+
+        // --- CAMÉRA ---
+        const viewport = document.getElementById('viewport');
+        const container = document.getElementById('map-container');
+        let isDragging = false, startX, startY, transX = 0, transY = 0, currentScale = 1;
+
+        viewport.addEventListener('mousedown', (e) => {
+            if(e.target.closest('.node-slot') || e.target.closest('.btn')) return; 
+            isDragging = true;
+            startX = e.clientX - transX;
+            startY = e.clientY - transY;
+            document.body.style.cursor = 'grabbing';
         });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            transX = e.clientX - startX;
+            transY = e.clientY - startY;
+            applyTransform();
+            hideTooltip();
+        });
+
+        window.addEventListener('mouseup', () => { isDragging = false; document.body.style.cursor = 'default'; });
+        window.addEventListener('mouseleave', () => { isDragging = false; hideTooltip(); document.body.style.cursor = 'default'; });
+
+        viewport.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            zoomMap(e.deltaY * -0.001);
+        }, { passive: false });
+
+        function zoomMap(delta) {
+            currentScale += delta;
+            currentScale = Math.min(Math.max(0.3, currentScale), 2.5);
+            applyTransform();
+        }
+
+        function centerMap() {
+            const targetX = 10 * GRID_X;
+            const targetY = 15 * GRID_Y;
+            transX = (viewport.clientWidth / 2) - (targetX * currentScale);
+            transY = (viewport.clientHeight / 2) - (targetY * currentScale);
+            applyTransform();
+        }
+
+        function applyTransform() {
+            container.style.transform = `translate(${transX}px, ${transY}px) scale(${currentScale})`;
+        }
+
+        // --- DÉMARRAGE ---
+        initMap();
+        resizeCanvas();
+        animateParticles();
+        setTimeout(centerMap, 50);
+
     </script>
 </body>
 </html>
