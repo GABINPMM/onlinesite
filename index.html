@@ -3,626 +3,292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Héritage - 100 Défis Minecraft</title>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <title>INSHATTA | PINK EDITION</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
     <style>
+        /* --- RESET & VARIABLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
         :root {
-            --mc-frame-outer: #281c13;
-            --mc-frame-inner: #5c4033;
-            --mc-slot-bg: #8b8b8b;
-            --mc-slot-border-light: #ffffff;
-            --mc-slot-border-dark: #373737;
-            --glow-green: #55ff55;
-            --glow-gold: #ffff55;
-            --wire-off: #4a0000;
-            --wire-on: #ff2200;
+            --color-bg: #ffffff; 
+            --color-text: #000000;
+            --color-accent: #FF00CC; /* Rose Néon */
+            --color-accent-soft: #ffe5fa;
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --easing: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        body, html {
-            margin: 0; padding: 0;
-            width: 100%; height: 100%;
-            overflow: hidden;
-            background-color: #000;
-            font-family: 'VT323', monospace;
-            user-select: none;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        ::selection { background: var(--color-accent); color: #fff; }
 
-        /* --- CADRE & FOND --- */
-        #game-frame {
-            width: 98vw; height: 96vh;
-            background-color: var(--mc-frame-inner);
-            border: 8px solid var(--mc-frame-outer);
-            position: relative;
-            display: flex; flex-direction: column;
-            box-shadow: 0 0 20px rgba(0,0,0,1);
-        }
-
-        #top-bar {
-            height: 85px;
-            background: rgba(0, 0, 0, 0.8);
-            border-bottom: 4px solid #111;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            z-index: 100;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-        }
-
-        .xp-title { font-size: 20px; color: #ccc; margin-bottom: 5px; text-shadow: 2px 2px #000; }
-        
-        .xp-container {
-            width: 600px; height: 16px;
-            background: #222; border: 2px solid #000;
-            border-top-color: #555; border-left-color: #555;
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
             position: relative;
         }
-        .xp-bar {
-            height: 100%; width: 0%;
-            background: linear-gradient(90deg, #10C910, #8AF78A);
-            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 0 10px #10C910;
+
+        /* --- BACKGROUND ANIMATION (LIGNES VISIBLES) --- */
+        .bg-lines-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; 
+            overflow: hidden; pointer-events: none;
         }
 
-        .stats { font-size: 22px; color: var(--glow-gold); margin-top: 6px; text-shadow: 2px 2px #000; letter-spacing: 1px;}
-
-        #viewport {
-            flex-grow: 1; position: relative; overflow: hidden; cursor: grab;
-            background-color: #3a2618;
-            background-image: 
-                linear-gradient(45deg, #332012 25%, transparent 25%, transparent 75%, #332012 75%, #332012),
-                linear-gradient(45deg, #332012 25%, transparent 25%, transparent 75%, #332012 75%, #332012);
-            background-size: 32px 32px;
-            background-position: 0 0, 16px 16px;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
-        }
-        #viewport:active { cursor: grabbing; }
-
-        #map-container {
-            position: absolute; transform-origin: 0 0;
-            width: 8000px; height: 8000px;
-            will-change: transform;
+        .line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+            /* MODIFICATION : Lignes plus visibles */
+            opacity: 0.8; 
+            height: 4px; 
+            filter: blur(0px);
+            width: 70%;
         }
 
-        /* --- REDSTONE (SVG) --- */
-        #svg-layer {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%; pointer-events: none; z-index: 1;
+        .line:nth-child(1) { top: 20%; left: -50%; animation: drift 15s linear infinite; }
+        .line:nth-child(2) { 
+            top: 60%; left: -50%; animation: drift 22s linear infinite reverse; 
+            height: 3px; opacity: 0.6; 
         }
-        .wire { stroke: var(--wire-off); stroke-width: 8; fill: none; stroke-linejoin: miter; transition: stroke 0.3s; }
-        .wire.active { stroke: var(--wire-on); filter: drop-shadow(0 0 6px #ff0000); }
+        .line:nth-child(3) { top: 85%; left: -50%; animation: drift 18s linear infinite; width: 30%; }
 
-        /* --- NODES (Slots Minecraft) --- */
-        #nodes-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
-
-        .node-wrapper {
-            position: absolute; display: flex; align-items: center;
-            transform: translate(-50%, -50%);
+        @keyframes drift {
+            from { transform: translateX(0) rotate(-5deg); }
+            to { transform: translateX(200vw) rotate(-5deg); }
         }
 
-        .node-slot {
-            width: 60px; height: 60px;
-            background: var(--mc-slot-bg);
-            border: 4px solid;
-            border-color: var(--mc-slot-border-light) var(--mc-slot-border-dark) var(--mc-slot-border-dark) var(--mc-slot-border-light);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 36px; cursor: pointer; position: relative;
-            box-shadow: 4px 4px 15px rgba(0,0,0,0.6);
-            transition: transform 0.15s, border-color 0.3s;
+        /* --- PRELOADER --- */
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background-color: var(--color-accent);
+            z-index: 9999; display: flex; justify-content: center; align-items: center;
+            transition: transform 0.8s var(--easing);
         }
-        .node-slot:hover { transform: scale(1.15); z-index: 10; }
+        .emoji-dance { font-size: 5rem; animation: bounce 0.6s infinite alternate; }
+        @keyframes bounce { to { transform: translateY(-20px) scale(1.1); } }
 
-        .icon { position: relative; z-index: 2; text-shadow: 2px 2px 0px rgba(0,0,0,0.5); }
-
-        /* États */
-        .node-slot.locked { filter: grayscale(100%) brightness(0.5); cursor: not-allowed; }
-        .node-slot.locked:hover { transform: scale(1); }
+        /* --- TYPOGRAPHY & UI --- */
+        h1, h2, h3 { font-family: var(--font-display); text-transform: uppercase; line-height: 0.9; }
         
-        .node-slot.completed {
-            background: #2a2a2a;
-            border-color: var(--glow-green);
-            box-shadow: 0 0 20px var(--glow-green), inset 0 0 15px var(--glow-green);
-        }
-        
-        .checkmark {
-            position: absolute; bottom: -12px; right: -12px;
-            color: var(--glow-green); font-size: 30px; text-shadow: 2px 2px #000;
-            display: none; z-index: 5; font-weight: bold;
-        }
-        .node-slot.completed .checkmark { display: block; }
-
-        .node-slot.epic { width: 84px; height: 84px; font-size: 50px; border-color: #aa00aa; border-top-color: #ff55ff; border-left-color: #ff55ff;}
-        .node-slot.epic.completed { border-color: var(--glow-gold); box-shadow: 0 0 40px var(--glow-gold), inset 0 0 20px var(--glow-gold); }
-        .node-slot.epic .checkmark { font-size: 40px; bottom: -15px; right: -15px; color: var(--glow-gold); }
-
-        .node-title-label {
-            position: absolute; top: 110%; left: 50%; transform: translateX(-50%);
-            white-space: nowrap; font-size: 20px; color: #fff; text-shadow: 2px 2px #000;
-            text-align: center; pointer-events: none;
-        }
-        .locked .node-title-label { color: #666; }
-
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-        .shaking { animation: shake 0.3s; border-color: red !important; }
-
-        /* --- TOOLTIP ENRICHI --- */
-        #tooltip {
-            position: fixed; background: rgba(20, 5, 20, 0.95);
-            border: 2px solid #5a1a5a; padding: 15px;
-            width: 320px; pointer-events: none; opacity: 0; z-index: 1000;
-            transition: opacity 0.1s; box-shadow: 5px 5px 15px rgba(0,0,0,0.8), inset 0 0 15px rgba(90,26,90,0.3);
-        }
-        .tt-status { font-size: 18px; margin-bottom: 6px; text-transform: uppercase; font-weight: bold; }
-        .tt-status.lock { color: #ff5555; }
-        .tt-status.ready { color: #55ffff; }
-        .tt-status.done { color: var(--glow-green); }
-        .tt-title { color: var(--glow-gold); font-size: 26px; margin-bottom: 5px; text-shadow: 2px 2px #000; line-height: 1.1;}
-        .tt-desc { color: #aaaaaa; font-size: 18px; line-height: 1.2; margin-bottom: 10px;}
-        .tt-sep { height: 1px; background: #5a1a5a; margin: 10px 0; }
-        .tt-details { color: #e0e0e0; font-size: 17px; line-height: 1.3; }
-
-        /* --- PARTICULES --- */
-        #particle-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
-
-        /* Contrôles */
-        .controls { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 10px; z-index: 100; }
         .btn {
-            background: #8b8b8b; border: 3px solid; border-color: #fff #373737 #373737 #fff;
-            color: black; font-family: 'VT323'; font-size: 28px;
-            width: 45px; height: 45px; cursor: pointer; box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            display: inline-block; padding: 1.2rem 3.5rem;
+            background-color: var(--color-accent); color: #fff;
+            font-family: var(--font-display); font-weight: 800;
+            text-decoration: none; text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.3s ease; border: none; cursor: pointer;
         }
-        .btn:active { border-color: #373737 #fff #fff #373737; transform: translateY(2px); }
+        .btn:hover {
+            background-color: #000; color: var(--color-accent);
+            transform: scale(1.05); box-shadow: 0 10px 30px rgba(255, 0, 204, 0.3);
+        }
 
+        .btn-small { padding: 0.8rem 2rem; font-size: 0.9rem; }
+        .btn-white { background-color: #000; color: #fff; }
+        .btn-white:hover { background-color: #fff; }
+
+        /* --- HEADER --- */
+        header {
+            position: fixed; top: 0; width: 100%; padding: 1.5rem 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
+        }
+        .logo { font-family: var(--font-display); font-weight: 800; font-size: 1.8rem; color: var(--color-accent); }
+
+        /* --- HERO SECTION (Version Empilée : Texte Haut, Image Bas) --- */
+        .hero {
+            min-height: 100vh; 
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Aligné en haut */
+            align-items: center;
+            padding-top: 140px; /* Espace sous le header */
+            padding-bottom: 4rem;
+            position: relative;
+            overflow: hidden;
+            /* Fond ajusté */
+            background: radial-gradient(circle at 50% 50%, rgba(255, 240, 250, 0.8) 0%, rgba(255, 255, 255, 0.1) 70%);
+        }
+
+        .hero-title {
+            position: relative; /* Plus d'absolute */
+            font-size: clamp(3rem, 10vw, 10rem);
+            text-align: center;
+            margin-bottom: 3rem; /* Espace entre titre et image */
+            z-index: 2;
+            line-height: 0.9;
+        }
+        .hero-title .line-1 { display: block; color: #000; }
+        .hero-title .line-2 { display: block; color: var(--color-accent); }
+
+        .hero-img-container {
+            position: relative;
+            z-index: 1;
+            width: 80vw;
+            max-width: 600px;
+            height: 50vh;
+            opacity: 0;
+            animation: popIn 1.2s var(--easing) 0.5s forwards;
+        }
+
+        .hero-img-container img {
+            width: 100%; height: 100%; object-fit: contain;
+            filter: drop-shadow(0 30px 40px rgba(255, 0, 204, 0.15));
+        }
+        
+        @keyframes popIn { from { opacity: 0; transform: scale(0.8) translateY(50px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+        /* --- SHOWCASE --- */
+        .showcase { padding: 10vh 5%; display: grid; grid-template-columns: repeat(12, 1fr); gap: 2rem; align-items: center; }
+        .visual-block { grid-column: span 12; height: 70vh; position: relative; overflow: hidden; background-color: rgba(245, 245, 245, 0.8); }
+        @media (min-width: 768px) { .visual-block.half { grid-column: span 6; height: 60vh; } }
+        .visual-block img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s ease; }
+        .visual-block:hover img { transform: scale(1.05); }
+        .tech-block { background-color: var(--color-accent-soft) !important; color: #000; border: 1px solid var(--color-accent); }
+
+        /* --- DUALITY --- */
+        .duality { padding: 10vh 10%; display: flex; flex-direction: column; gap: 10vh; }
+        .story-row { display: flex; flex-direction: column; gap: 3rem; align-items: center; }
+        @media (min-width: 900px) { .story-row { flex-direction: row; justify-content: space-between; } .story-row.reverse { flex-direction: row-reverse; } .story-text { width: 40%; } .story-img { width: 50%; } }
+        .story-text h2 { font-size: 3.5rem; margin-bottom: 1rem; color: #000; }
+        .story-text h2 span { color: var(--color-accent); }
+        .story-text p { font-size: 1.1rem; line-height: 1.6; color: #444; font-weight: 400; }
+        .story-img img { width: 100%; transition: transform 0.5s ease; box-shadow: 20px 20px 0px var(--color-accent); }
+        .story-img:hover img { transform: translate(-5px, -5px); box-shadow: 25px 25px 0px var(--color-accent); }
+
+        /* --- CTA SECTION --- */
+        .cta-section {
+            min-height: 80vh;
+            padding: 5rem 2rem;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+            background-color: var(--color-accent); color: #fff;
+        }
+        .cta-section h2 { color: #fff; font-size: 4vw; }
+        .big-price { font-family: var(--font-display); font-size: 8rem; margin: 1rem 0; color: #000; }
+        
+        .insta-link {
+            margin-top: 3rem; display: flex; align-items: center; gap: 10px;
+            color: #fff; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            transition: transform 0.3s ease;
+        }
+        .insta-link:hover { transform: scale(1.1); color: #000; }
+        .insta-icon { width: 24px; height: 24px; fill: currentColor; }
+
+
+        /* --- ANIMATIONS & HELPERS --- */
+        .reveal { opacity: 0; transform: translateY(50px); transition: all 1s var(--easing); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .ph-box { width: 100%; height: 100%; background: #eee; display: flex; justify-content: center; align-items: center; color: #999; border: 2px solid var(--color-accent); }
     </style>
 </head>
 <body>
 
-    <div id="game-frame">
-        <div id="top-bar">
-            <div class="xp-title">EXPÉRIENCE (XP)</div>
-            <div class="xp-container"><div class="xp-bar" id="xpBar"></div></div>
-            <div class="stats" id="statsText">DÉFIS COMPLÉTÉS: 0 / 100 (NIVEAU 0)</div>
-        </div>
+    <div id="preloader"><div class="emoji-dance">💃</div></div>
 
-        <div id="viewport">
-            <div id="map-container">
-                <svg id="svg-layer"></svg>
-                <div id="nodes-layer"></div>
-                <canvas id="particle-canvas"></canvas>
-            </div>
-            
-            <div class="controls">
-                <button class="btn" onclick="zoomMap(0.25)">+</button>
-                <button class="btn" onclick="zoomMap(-0.25)">-</button>
-                <button class="btn" onclick="centerMap()">🎯</button>
-            </div>
-        </div>
+    <div class="bg-lines-container">
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
     </div>
 
-    <div id="tooltip">
-        <div class="tt-status" id="tt-status">STATUT</div>
-        <div class="tt-title" id="tt-title">Titre</div>
-        <div class="tt-desc" id="tt-desc">Description courte</div>
-        <div class="tt-sep"></div>
-        <div class="tt-details" id="tt-details">Détails de la mission</div>
-    </div>
+    <header>
+        <div class="logo">INSHATTA.</div>
+        <nav>
+            <a href="#cta-anchor" class="btn btn-small">COMMANDER</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1 class="hero-title">
+            <span class="line-1 reveal">UN MAILLOT</span>
+            <span class="line-2 reveal">UNE IDENTITÉ</span>
+        </h1>
+        
+        <div class="hero-img-container">
+            <img src="maillot-front.jpg" alt="Maillot INSHATTA" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="ph-box" style="display:none;">IMAGE FACE</div>
+        </div>
+        
+        <div style="margin-top: 3rem; color: var(--color-accent); font-weight: bold; letter-spacing: 2px; animation: bounce 2s infinite;">SCROLL DOWN</div>
+    </section>
+
+    <section class="showcase">
+        <div class="visual-block reveal">
+            <img src="maillot-detail.jpg" alt="Détail" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="ph-box" style="display:none;">IMAGE DÉTAIL</div>
+        </div>
+        <div class="visual-block half reveal">
+            <img src="maillot-back.jpg" alt="Dos" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="ph-box" style="display:none;">IMAGE DOS</div>
+        </div>
+        <div class="visual-block half tech-block reveal" style="display:flex; align-items:center; justify-content:center; padding: 3rem;">
+            <div>
+                <h3 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--color-accent);">FLORAL & TECH</h3>
+                <p>Mélange audacieux de nature et de culture urbaine sur un tissu technique haute performance.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="duality">
+        <div class="story-row reveal">
+            <div class="story-text">
+                <h2>ESPRIT <span>SHATTA</span></h2>
+                <p>Plus qu'une couleur, le rose est notre étendard. Incarne le mouvement Shatta : audacieux, vibrant et sans compromis. Ce maillot n'est pas fait pour se cacher, il est fait pour briller.</p>
+            </div>
+            <div class="story-img">
+                <img src="maillot-front.jpg" alt="Lifestyle" onerror="this.src='https://placehold.co/600x400/ffe5fa/FF00CC?text=Inshatta+Shatta'">
+            </div>
+        </div>
+
+        <div class="story-row reverse reveal">
+            <div class="story-text">
+                <h2>SPORT <span>ON</span></h2>
+                <p>40 euros. C'est le prix de l'exception sans se ruiner. Tissu respirant, liberté de mouvement totale.</p>
+            </div>
+            <div class="story-img">
+                <img src="maillot-back.jpg" alt="Sport" onerror="this.src='https://placehold.co/600x400/ffe5fa/FF00CC?text=Inshatta+Sport'">
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section" id="cta-anchor">
+        <h2 class="reveal">TON IDENTITÉ T'ATTEND</h2>
+        <div class="big-price reveal">40 €</div>
+        
+        <a href="order.html" class="btn btn-white reveal">COMMANDER</a>
+        <p style="margin-top: 2rem; font-weight: 600; letter-spacing: 1px;" class="reveal">STOCK ILLIMITÉ. LIVRAISON RAPIDE.</p>
+        
+        <a href="https://www.instagram.com/inshatta?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="insta-link reveal">
+            <svg class="insta-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.9 0-184.9zM490.9 453c-5.5 21.3-22.8 38.6-44.1 44.1-21.6 5.7-66.6 7.4-125.5 7.4-58.8 0-103.9-1.7-125.5-7.4-21.3-5.5-38.6-22.8-44.1-44.1-5.7-21.6-7.4-66.6-7.4-125.5 0-58.8 1.7-103.9 7.4-125.5 5.5-21.3 22.8-38.6 44.1-44.1 21.6-5.7 66.6-7.4 125.5-7.4 58.8 0 103.9 1.7 125.5 7.4 21.3 5.5 38.6 22.8 44.1 44.1 5.7 21.6 7.4 66.6 7.4 125.5 0 58.8-1.7 103.9-7.4 125.5z"/></svg>
+            Suivre INSHATTA
+        </a>
+    </section>
 
     <script>
-        // --- BASE DE DONNÉES DES 100 MISSIONS AVEC DÉTAILS ---
-        // Format : {id, p: parentID, x, y, icon, e: isEpic, t: Titre, d: Description courte, dt: Objectif détaillé}
-        const rawMissions = [
-            // TRONC PRINCIPAL (Y=15)
-            {id: 1, p: 0, x: 10, y: 15, e: false, icon: "🪵", t: "L'Éveil", d: "Cassez du bois.", dt: "Récoltez au moins 10 bûches de n'importe quel arbre. C'est la première étape indispensable pour fabriquer votre établi." },
-            {id: 2, p: 1, x: 13, y: 15, e: false, icon: "⛏️", t: "L'Âge de Pierre", d: "Améliorez vos outils.", dt: "Fabriquez un set complet d'outils en pierre (Pioche, Hache, Épée, Pelle) et un fourneau." },
-            {id: 3, p: 2, x: 16, y: 15, e: false, icon: "🪨", t: "Maître Mineur", d: "Le premier fer.", dt: "Faites fondre un stack complet (64) de minerai de fer brut pour obtenir vos premiers lingots." },
-            {id: 4, p: 3, x: 19, y: 15, e: false, icon: "💎", t: "L'Éclat Bleu", d: "Trouvez des diamants.", dt: "Mineurs de l'extrême, ramenez au moins 5 diamants à la surface. Ne tombez pas dans la lave !" },
-            {id: 5, p: 4, x: 22, y: 15, e: false, icon: "⬛", t: "Larmes Noires", d: "Minez de l'obsidienne.", dt: "Utilisez votre pioche en diamant flambant neuve pour récupérer 14 blocs d'obsidienne." },
-            {id: 6, p: 5, x: 25, y: 15, e: true, icon: "🪟", t: "Vers les Enfers", d: "Entrez dans le Nether.", dt: "Construisez un portail du Nether esthétique (pas juste un rectangle) et traversez-le pour la première fois." },
-            {id: 7, p: 6, x: 28, y: 15, e: false, icon: "🏰", t: "La Forteresse", d: "Explorez les flammes.", dt: "Trouvez une forteresse du Nether, tuez des Blazes et ramenez 10 bâtons de Blaze." },
-            {id: 8, p: 7, x: 31, y: 15, e: false, icon: "👁️", t: "L'Oeil qui voit tout", d: "Trouvez le Stronghold.", dt: "Utilisez vos yeux de l'Ender pour localiser le Stronghold souterrain. Sécurisez la salle du portail." },
-            {id: 9, p: 8, x: 34, y: 15, e: false, icon: "🌌", t: "Le Grand Saut", d: "Traversez le vide.", dt: "Placez les yeux manquants dans le cadre et sautez dans le portail de l'End." },
-            {id: 10, p: 9, x: 37, y: 15, e: true, icon: "🐉", t: "SLAYER OF WORLDS", d: "Tuez l'Ender Dragon.", dt: "Détruisez les cristaux de l'End et abattez le dragon. N'oubliez pas de récupérer votre XP et l'oeuf !" },
-            {id: 100, p: 10, x: 41, y: 15, e: true, icon: "👑", t: "L'EMPIRE ACHEVÉ", d: "L'Ultime défi builder.", dt: "Construisez une mégabase suspendue dans le ciel (ou dans le vide de l'End), nécessitant plus de 50 000 blocs placés à la main." },
-
-            // BRANCHE 1 : ARCHITECTURE (Vers le haut, parent 1)
-            {id: 11, p: 1, x: 10, y: 12, e: false, icon: "🏕️", t: "Bivouac", d: "Un abri pour la nuit.", dt: "Construisez une petite cabane avec un lit, un feu de camp, et un tonneau. Sécurisez la zone avec des torches." },
-            {id: 12, p: 11, x: 10, y: 9, e: false, icon: "🚪", t: "Maison de Maître", d: "Une vraie base.", dt: "Construisez une maison utilisant au moins 4 blocs de construction différents (ex: pierre taillée, bois de chêne, briques, verre)." },
-            {id: 13, p: 12, x: 10, y: 6, e: false, icon: "🌉", t: "Le Grand Pont", d: "Reliez les terres.", dt: "Créez un pont détaillé de plus de 30 blocs de long traversant une rivière ou un ravin." },
-            {id: 14, p: 13, x: 13, y: 6, e: false, icon: "⚓", t: "Quartier Maritime", d: "Accès à l'océan.", dt: "Construisez un port de pêche avec des quais en bois, des grues et des tonneaux stockés." },
-            {id: 15, p: 14, x: 13, y: 9, e: true, icon: "🚢", t: "Le Galion", d: "Un navire impressionnant.", dt: "Construisez un grand bateau à voiles (minimum 20x10 blocs) amarré à votre port." },
-            {id: 16, p: 15, x: 13, y: 12, e: false, icon: "🏛️", t: "Hôtel de Ville", d: "Le centre administratif.", dt: "Édifiez un bâtiment majestueux avec de grandes colonnes et un toit en cuivre." },
-            {id: 17, p: 11, x: 8, y: 12, e: false, icon: "⚒️", t: "Scierie", d: "Traitement du bois.", dt: "Créez un bâtiment industriel avec des scies circulaires décoratives (tailleurs de pierre) et des troncs empilés." },
-            {id: 18, p: 17, x: 8, y: 9, e: false, icon: "🕰️", t: "La Tour de l'Horloge", d: "Donnez l'heure.", dt: "Une tour de 30 blocs de haut avec une horloge fonctionnelle en Redstone (capteur de lumière)." },
-            {id: 19, p: 18, x: 8, y: 6, e: false, icon: "🏰", t: "Château Fort", d: "Murs et douves.", dt: "Construisez un château fortifié avec au moins 4 tours de garde et des créneaux." },
-            {id: 20, p: 19, x: 6, y: 6, e: false, icon: "⛪", t: "Cathédrale", d: "Lumière divine.", dt: "Élevez une cathédrale gothique. Les vitraux doivent utiliser du verre teinté de différentes couleurs." },
-            {id: 21, p: 20, x: 6, y: 9, e: false, icon: "🧱", t: "Grande Muraille", d: "Fermez la ville.", dt: "Entourez toute votre ville principale d'un mur de protection d'au moins 5 blocs de haut." },
-            {id: 22, p: 21, x: 6, y: 12, e: true, icon: "🗿", t: "Terraforming Divin", d: "Modifiez la carte.", dt: "Rasez une montagne entière OU transformez un biome désert en une immense forêt luxuriante artificielle." },
-
-            // BRANCHE 2 : AGRICULTURE & VILLAGE (Vers le bas, parent 2)
-            {id: 23, p: 2, x: 13, y: 18, e: false, icon: "🍞", t: "Autosuffisance", d: "Ne mourrez plus de faim.", dt: "Créez un grand champ de blé, carottes et patates avec un système d'irrigation propre." },
-            {id: 24, p: 23, x: 13, y: 21, e: false, icon: "🐄", t: "Élevage Intensif", d: "Viande et cuir.", dt: "Construisez des enclos séparés pour les vaches, moutons, cochons et poulets. Ayez 10 animaux de chaque." },
-            {id: 25, p: 24, x: 13, y: 24, e: false, icon: "🌾", t: "Moulin à Vent", d: "Architecture rurale.", dt: "Construisez un grand moulin à vent décoratif avec des pales en laine blanche posé sur une colline." },
-            {id: 26, p: 25, x: 10, y: 24, e: false, icon: "👨‍🌾", t: "Les Réfugiés", d: "Trouvez des PNJ.", dt: "Transportez 2 villageois jusqu'à votre base (en bateau ou minecart) et enfermez-les en sécurité." },
-            {id: 27, p: 26, x: 10, y: 21, e: false, icon: "🛏️", t: "Explosion Démographique", d: "Reproduction.", dt: "Créez un dortoir avec 20 lits et donnez-leur de la nourriture pour multiplier les villageois." },
-            {id: 28, p: 27, x: 10, y: 18, e: true, icon: "🏪", t: "LE GRAND MARCHÉ", d: "Tous les métiers.", dt: "Construisez un marché structuré avec 1 kiosque par métier (13 métiers au total). Optimisez vos échanges." },
-            {id: 29, p: 23, x: 16, y: 18, e: false, icon: "🍯", t: "Apiculteur", d: "Ferme à miel.", dt: "Créez une serre botanique contenant 5 ruches et automatisez la récolte de miel avec des distributeurs." },
-            {id: 30, p: 29, x: 16, y: 21, e: false, icon: "🐑", t: "Arc-en-ciel", d: "Toutes les laines.", dt: "Une ferme automatique à laine possédant un mouton de chacune des 16 couleurs du jeu." },
-            {id: 31, p: 30, x: 16, y: 24, e: false, icon: "🥕", t: "Esclavagisme Agricole", d: "Ferme auto à PNJ.", dt: "Utilisez un fermier PNJ pour qu'il plante et récolte des cultures, et volez ses items via un entonnoir." },
-            {id: 32, p: 31, x: 19, y: 24, e: false, icon: "📚", t: "Le Savoir", d: "Livre Raccommodage.", dt: "Forcez un villageois bibliothécaire à vous proposer l'enchantement 'Mending' (Raccommodage) à bas prix." },
-            {id: 33, p: 32, x: 19, y: 21, e: false, icon: "🧟", t: "Soins intensifs", d: "Zombification.", dt: "Laissez un zombie infecter un villageois, puis soignez-le avec une pomme d'or pour baisser ses prix." },
-            {id: 34, p: 33, x: 19, y: 18, e: false, icon: "🎣", t: "Le Pêcheur", d: "AFK Fish.", dt: "Créez une petite cabane de pêche avec un système pour récupérer automatiquement des livres enchantés." },
-
-            // BRANCHE 3 : MINAGE & INDUSTRIE REDSTONE (Vers le haut, parent 4)
-            {id: 35, p: 4, x: 19, y: 12, e: false, icon: "🛤️", t: "Mine Optimisée", d: "Creusez intelligemment.", dt: "Mettez en place un grand tunnel principal au niveau Y=-58 avec des branches espacées de 3 blocs." },
-            {id: 36, p: 35, x: 19, y: 9, e: false, icon: "⚙️", t: "Premières Usines", d: "Ferme à fer.", dt: "Construisez une ferme à fer basique (avec zombie et villageois) générant au moins 300 lingots par heure." },
-            {id: 37, p: 36, x: 19, y: 6, e: false, icon: "📦", t: "Salle des Coffres", d: "Stockage massif.", dt: "Construisez une grande salle contenant au moins 100 doubles coffres bien alignés et nommés." },
-            {id: 38, p: 37, x: 16, y: 6, e: true, icon: "💻", t: "TRI AUTOMATIQUE", d: "Redstone avancée.", dt: "Installez un système de tri automatique derrière vos coffres capable de filtrer 40 items différents." },
-            {id: 39, p: 38, x: 16, y: 9, e: false, icon: "💥", t: "Usine à Poudre", d: "Ferme à Creeper.", dt: "Construisez une ferme produisant de la poudre à canon (utile pour les feux d'artifice et la TNT)." },
-            {id: 40, p: 39, x: 16, y: 12, e: false, icon: "🚀", t: "Aérospatial", d: "Feux d'artifice auto.", dt: "Couplez votre ferme à Creeper avec une ferme à canne à sucre pour crafter des roquettes à l'infini." },
-            {id: 41, p: 35, x: 22, y: 12, e: false, icon: "🟢", t: "Usine Visqueuse", d: "Ferme à Slime.", dt: "Trouvez un 'Slime Chunk', videz-le de la surface jusqu'à la bedrock, et installez des plateformes de spawn." },
-            {id: 42, p: 41, x: 22, y: 9, e: false, icon: "🚂", t: "Gare Centrale", d: "Réseau ferré.", dt: "Créez une gare permettant de sélectionner sa destination en appuyant sur un bouton." },
-            {id: 43, p: 42, x: 22, y: 6, e: false, icon: "⛏️", t: "Outils Divins", d: "Enchantements max.", dt: "Possédez un set d'outils (Pioche, Hache, Pelle) avec Efficacité 5, Solidité 3, et Raccommodage." },
-            {id: 44, p: 43, x: 25, y: 6, e: false, icon: "🕳️", t: "Le Grand Vide", d: "Périmètre de farm.", dt: "Creusez un périmètre complet de 128x128 blocs jusqu'à la bedrock (sans utiliser de TNT dupe)." },
-            {id: 45, p: 44, x: 25, y: 9, e: false, icon: "🚪", t: "Porte Secrète", d: "Mécanisme caché.", dt: "Construisez une porte en redstone (minimum 3x3) cachée dans une montagne ou derrière une bibliothèque." },
-            {id: 46, p: 45, x: 25, y: 12, e: false, icon: "🦑", t: "L'Encre Noir", d: "Ferme à Poulpes.", dt: "Construisez une ferme générant de l'encre noire, essentielle pour le béton noir de vos constructions." },
-
-            // BRANCHE 4 : NETHER & MAGIE (Vers le bas, parent 6)
-            {id: 47, p: 6, x: 25, y: 18, e: false, icon: "🧱", t: "Débris Antiques", d: "Minez de la Netherite.", dt: "Trouvez vos premiers débris antiques dans les profondeurs du Nether (utilisez la technique des lits)." },
-            {id: 48, p: 47, x: 25, y: 21, e: true, icon: "🪖", t: "NETHERITE CHAMPION", d: "Armure ultime.", dt: "Améliorez toutes les pièces de votre armure en diamant vers la Netherite." },
-            {id: 49, p: 48, x: 25, y: 24, e: false, icon: "🐖", t: "Diplomatie Piglin", d: "Troc automatique.", dt: "Faites une salle sécurisée pour donner de l'or aux Piglins et récupérer leurs objets automatiquement." },
-            {id: 50, p: 49, x: 22, y: 24, e: false, icon: "👑", t: "Le Roi de l'Or", d: "Ferme à Or.", dt: "Montez au-dessus du plafond de bedrock du Nether et construisez une immense ferme à Zombie Piglins." },
-            {id: 51, p: 50, x: 22, y: 21, e: false, icon: "❄️", t: "Autoroute de Glace", d: "Voyage express.", dt: "Créez un réseau de glace bleue dans le Nether reliant vos bases éloignées pour voyager en bateau." },
-            {id: 52, p: 51, x: 22, y: 18, e: false, icon: "🍄", t: "Botanique Infernale", d: "Verrues du Nether.", dt: "Ramenez du sable des âmes et créez une plantation massive de verrues pour l'alchimie." },
-            {id: 53, p: 47, x: 28, y: 18, e: false, icon: "⚗️", t: "L'Alchimiste", d: "Faites des potions.", dt: "Créez une salle des potions avec des alambics. Préparez des potions de soin et de résistance au feu." },
-            {id: 54, p: 53, x: 28, y: 21, e: false, icon: "🔮", t: "Table d'Enchantement", d: "Niveau 30.", dt: "Installez une table d'enchantement au milieu de 15 bibliothèques pour atteindre le niveau maximum." },
-            {id: 55, p: 54, x: 28, y: 24, e: false, icon: "🎶", t: "Le Mélomane", d: "Collection de disques.", dt: "Récupérez au moins 8 disques de musique différents (en faisant tirer un squelette sur un creeper)." },
-            {id: 56, p: 55, x: 31, y: 24, e: false, icon: "📻", t: "Jukebox Auto", d: "Musique continue.", dt: "Faites un système redstone qui insère et joue vos disques en boucle dans votre base." },
-            {id: 57, p: 56, x: 31, y: 21, e: false, icon: "🪦", t: "Le Deep Dark", d: "Trouvez l'Ancienne Cité.", dt: "Aventurez-vous dans les grottes sombres, trouvez une cité ancienne et pillez 5 coffres sans faire de bruit." },
-            {id: 58, p: 57, x: 31, y: 18, e: true, icon: "🦇", t: "SURVIVRE AU WARDEN", d: "Affrontez le cauchemar.", dt: "Réveillez le Warden, survivez à son attaque sonique et réussissez à le tuer (ou à le fuir héroïquement)." },
-
-            // BRANCHE 5 : AVENTURE & BOSS (Vers le haut, parent 8)
-            {id: 59, p: 8, x: 31, y: 12, e: false, icon: "💀", t: "Chasseur de Crânes", d: "Fermez les Wither Squelettes.", dt: "Tuez assez de Wither Squelettes pour réunir 3 crânes noirs. L'épée Looting 3 est fortement conseillée." },
-            {id: 60, p: 59, x: 31, y: 9, e: true, icon: "🌟", t: "VAINCRE LE WITHER", d: "Le boss optionnel.", dt: "Invoquez le Wither loin de votre base et terrassez-le pour obtenir la précieuse Étoile du Nether." },
-            {id: 61, p: 60, x: 31, y: 6, e: false, icon: "🗼", t: "Le Phare", d: "Construisez un Beacon.", dt: "Fabriquez une balise, posez-la sur une pyramide complète de blocs de fer/or pour des buffs infinis." },
-            {id: 62, p: 61, x: 28, y: 6, e: false, icon: "🌈", t: "Beacon Coloré", d: "Customisez la lumière.", dt: "Changez la couleur du rayon de votre beacon avec du verre teinté pour l'assortir à votre base." },
-            {id: 63, p: 62, x: 28, y: 9, e: false, icon: "🔱", t: "Monument Océanique", d: "Tuez les boss poissons.", dt: "Trouvez un monument sous-marin et tuez les 3 Elder Guardians. Récupérez les éponges." },
-            {id: 64, p: 63, x: 28, y: 12, e: false, icon: "🧽", t: "L'Assèchement", d: "Videz le monument.", dt: "Un travail titanesque : utilisez du sable et vos éponges pour retirer 100% de l'eau autour du monument." },
-            {id: 65, p: 59, x: 34, y: 12, e: false, icon: "🌊", t: "Ferme à Guardians", d: "Lanterne des mers infinies.", dt: "Transformez votre monument vidé en une ferme de prismarine produisant massivement." },
-            {id: 66, p: 65, x: 34, y: 9, e: false, icon: "🏹", t: "Mauvais Présage", d: "Déclenchez un raid.", dt: "Tuez un capitaine pillard et entrez dans un village pour déclencher un raid." },
-            {id: 67, p: 66, x: 34, y: 6, e: true, icon: "🦅", t: "HÉROS DU VILLAGE", d: "Gagnez le raid.", dt: "Repoussez toutes les vagues du raid et obtenez vos premiers Totems d'Immortalité." },
-            {id: 68, p: 67, x: 37, y: 6, e: false, icon: "💀", t: "Raid Automatique", d: "Usine à totems.", dt: "Construisez une ferme à raid au-dessus de l'océan pour looter des émeraudes et totems à l'infini." },
-            {id: 69, p: 68, x: 37, y: 9, e: false, icon: "👿", t: "Le Manoir", d: "Explorez les bois.", dt: "Achetez une carte chez un cartographe, voyagez sur 10 000 blocs et videz un Manoir de l'Illusion." },
-            {id: 70, p: 69, x: 37, y: 12, e: false, icon: "☠️", t: "Wither x3", d: "Défi ultime Wither.", dt: "Combattez 3 Withers en même temps. Uniquement pour les fous ou ceux très bien préparés." },
-
-            // BRANCHE 6 : MEGABUILDS & END (Vers le bas, parent 10)
-            {id: 71, p: 10, x: 37, y: 18, e: false, icon: "🥚", t: "Le Trophée", d: "L'oeuf du dragon.", dt: "Récupérez l'oeuf de l'Ender Dragon en utilisant la technique du piston ou de la torche." },
-            {id: 72, p: 71, x: 37, y: 21, e: true, icon: "🦋", t: "LES ÉLYTRES", d: "Apprenez à voler.", dt: "Explorez les îles de l'End, trouvez une Cité et un navire volant pour récupérer vos premières Élytres." },
-            {id: 73, p: 72, x: 37, y: 24, e: false, icon: "🛫", t: "Tour de Lancement", d: "Piste de décollage.", dt: "Construisez une haute tour dans votre base (avec ascenseur à eau ou soul sand) dédiée au décollage en Elytres." },
-            {id: 74, p: 73, x: 34, y: 24, e: false, icon: "📦", t: "Ferme à Shulkers", d: "Boîtes infinies.", dt: "Faites l'exploit redstone de rapatrier un Shulker dans l'Overworld pour créer une usine à boîtes." },
-            {id: 75, p: 74, x: 34, y: 21, e: false, icon: "🔮", t: "Ferme à Endermen", d: "Niveau 100 en 5min.", dt: "Sous l'île de l'End, construisez une plateforme de farm utilisant une Endermite comme appât." },
-            {id: 76, p: 75, x: 34, y: 18, e: false, icon: "🌑", t: "Void Base", d: "Habiter le néant.", dt: "Aménagez une véritable base sous l'île centrale de l'End, juste au-dessus du vide mortel." },
-            {id: 77, p: 71, x: 40, y: 18, e: false, icon: "🌿", t: "End Terraforming", d: "Verdir la fin.", dt: "Recouvrez une grande partie de l'île centrale de l'End avec de la terre, de l'herbe et des arbres." },
-            {id: 78, p: 77, x: 40, y: 21, e: false, icon: "🧭", t: "Mur des Cartes", d: "Mappez l'empire.", dt: "Créez un mur contenant au moins 16 cartes de niveau de zoom 3, affichant tout votre empire vu du ciel." },
-            {id: 79, p: 78, x: 40, y: 24, e: false, icon: "🎨", t: "Map Art", d: "Dessin géant.", dt: "Aplatissez une zone de 128x128 blocs et posez des blocs pour dessiner un logo ou un pixel art visible sur une carte." },
-            {id: 80, p: 79, x: 43, y: 24, e: false, icon: "🐉", t: "Le Retour du Roi", d: "Réinvoquez le dragon.", dt: "Crafter 4 cristaux de l'End, placez-les sur le portail et tuez le dragon une seconde fois." },
-            {id: 81, p: 80, x: 43, y: 21, e: false, icon: "🌍", t: "How Did We Get Here?", d: "Succès caché.", dt: "Obtenez absolument tous les effets de potion/statut du jeu en même temps." },
-            {id: 82, p: 81, x: 43, y: 18, e: false, icon: "🏆", t: "Collectionneur", d: "Musée.", dt: "Créez une salle exposant chaque bloc, chaque tête de mob, et les objets uniques du jeu." },
-
-            // EXTENSIONS DE BRANCHES (Pour arriver à 99)
-            // Ajouts Architecture
-            {id: 83, p: 20, x: 6, y: 3, e: false, icon: "⛲", t: "Fontaine Centrale", d: "Place publique.", dt: "Une immense place pavée avec une fontaine géante au centre de votre ville." },
-            {id: 84, p: 83, x: 8, y: 3, e: false, icon: "🌳", t: "Jardin Botanique", d: "Toutes les plantes.", dt: "Un immense dôme de verre abritant chaque espèce d'arbre et de fleur de Minecraft." },
-            {id: 85, p: 84, x: 10, y: 3, e: false, icon: "🎭", t: "L'Opéra", d: "Culture.", dt: "Construisez un théâtre/opéra avec une scène, des loges et des rideaux en laine rouge." },
-            {id: 86, p: 85, x: 13, y: 3, e: false, icon: "🌋", t: "Volcan Artificiel", d: "Terraforming extrême.", dt: "Construisez un volcan crachant de la lave, avec potentiellement une base secrète à l'intérieur." },
-            // Ajouts Agriculture
-            {id: 87, p: 26, x: 10, y: 27, e: false, icon: "🐢", t: "Protection Animale", d: "Ferme à tortues.", dt: "Élevez des tortues, protégez leurs oeufs et récupérez assez d'écailles pour un casque." },
-            {id: 88, p: 87, x: 13, y: 27, e: false, icon: "🐸", t: "Les Grenouilles", d: "Lampes colorées.", dt: "Faites manger des magma cubes à des grenouilles pour obtenir les 3 couleurs de 'Froglights'." },
-            {id: 89, p: 88, x: 16, y: 27, e: false, icon: "🐠", t: "L'Aquarium", d: "Axolotls.", dt: "Un grand bassin décoratif contenant des poissons tropicaux et l'Axolotl Bleu (extrêmement rare)." },
-            {id: 90, p: 89, x: 19, y: 27, e: false, icon: "🐴", t: "Hippodrome", d: "Piste de course.", dt: "Élevez des chevaux rapides et construisez un grand circuit pour faire la course avec vos amis." },
-            // Ajouts Industrie
-            {id: 91, p: 38, x: 16, y: 3, e: false, icon: "🪨", t: "Ferme à Cobble", d: "Générateur avec TNT.", dt: "Construisez une usine qui produit et détruit de la cobble avec de la TNT automatiquement." },
-            {id: 92, p: 91, x: 19, y: 3, e: false, icon: "🧱", t: "Ferme à Boue", d: "Nouveau bloc.", dt: "Automatisez la transformation de terre en boue, puis en briques de boue pour le build." },
-            {id: 93, p: 92, x: 22, y: 3, e: false, icon: "🪵", t: "Usine à Arbres", d: "Machine à bois.", dt: "Ferme complexe avec TNT dupe pour récolter le bois automatiquement dès que vous plantez la pousse." },
-            // Ajouts Nether
-            {id: 94, p: 50, x: 22, y: 27, e: false, icon: "🔥", t: "Ferme à Magma", d: "Magma cubes.", dt: "Ferme à Magma Cubes dans le biome Basalt Deltas pour la crème de magma." },
-            {id: 95, p: 94, x: 25, y: 27, e: false, icon: "😭", t: "Larmes de Ghast", d: "Ferme à Ghasts.", dt: "Au-dessus du plafond du Nether, créez une usine spécialisée dans l'apparition et l'abattage de Ghasts." },
-            {id: 96, p: 95, x: 28, y: 27, e: false, icon: "🌋", t: "Mines Opti Nether", d: "Quartz à l'infini.", dt: "Mine optimisée à la TNT dans le Nether pour récolter des milliers de blocs de Quartz." },
-            // Ajouts Magie/Aventure
-            {id: 97, p: 64, x: 28, y: 3, e: false, icon: "🧊", t: "Ferme à Glace", d: "Glace bleue.", dt: "Ferme AFK dans un biome neige pour générer la glace de vos autoroutes." },
-            {id: 98, p: 97, x: 31, y: 3, e: false, icon: "🎯", t: "Stand de Tir", d: "Mini-jeu redstone.", dt: "Construisez un mini-jeu avec cibles, lampes redstone et compteur de score automatique." },
-            {id: 99, p: 98, x: 34, y: 3, e: false, icon: "📖", t: "Le Livre d'Histoire", d: "Héritage.", dt: "Écrivez le récit de votre serveur dans un livre et plume, et scellez-le dans le coffre-fort de la ville." }
-        ];
-
-        // --- VARIABLES GLOBALES ---
-        const mapContainer = document.getElementById('map-container');
-        const nodesLayer = document.getElementById('nodes-layer');
-        const svgLayer = document.getElementById('svg-layer');
-        const tooltip = document.getElementById('tooltip');
-        let savedProgress = JSON.parse(localStorage.getItem('mc_100_v2')) || {};
-
-        if(!savedProgress[0]) savedProgress[0] = true; // Racine système
-
-        const GRID_X = 160; 
-        const GRID_Y = 120;
-
-        // --- INITIALISATION ---
-        function initMap() {
-            // Créer les slots HTML
-            rawMissions.forEach(m => {
-                const px = m.x * GRID_X;
-                const py = m.y * GRID_Y;
-
-                const wrapper = document.createElement('div');
-                wrapper.className = 'node-wrapper';
-                wrapper.style.left = `${px}px`;
-                wrapper.style.top = `${py}px`;
-
-                // Spécial pour le boss final
-                if(m.id === 100) {
-                    wrapper.style.transform = "translate(-50%, -50%) scale(1.3)";
-                }
-
-                wrapper.innerHTML = `
-                    <div class="node-slot" id="slot-${m.id}" onclick="handleNodeClick(${m.id}, event)">
-                        <span class="icon">${m.icon}</span>
-                        <div class="checkmark">✔</div>
-                        <div class="node-title-label">${m.e ? m.t : ''}</div>
-                    </div>
-                `;
-
-                // Tooltip events
-                const slotEl = wrapper.querySelector('.node-slot');
-                slotEl.addEventListener('mouseenter', (e) => showTooltip(e, m));
-                slotEl.addEventListener('mouseleave', hideTooltip);
-
-                nodesLayer.appendChild(wrapper);
-            });
-
-            // Créer les lignes SVG
-            let svgHTML = '';
-            rawMissions.forEach(m => {
-                if (m.p !== 0) {
-                    const parent = rawMissions.find(x => x.id === m.p);
-                    if (parent) {
-                        const sx = parent.x * GRID_X;
-                        const sy = parent.y * GRID_Y;
-                        const ex = m.x * GRID_X;
-                        const ey = m.y * GRID_Y;
-                        // Tracé en angle droit
-                        const path = `M ${sx} ${sy} L ${ex} ${sy} L ${ex} ${ey}`;
-                        svgHTML += `<path id="wire-${m.p}-${m.id}" class="wire" d="${path}" />`;
-                    }
-                }
-            });
-            svgLayer.innerHTML = svgHTML;
-
-            updateVisuals();
-            updateHUD();
-        }
-
-        // --- MOTEUR DE MISE A JOUR (Réécrit et Robuste) ---
-        function updateVisuals() {
-            rawMissions.forEach(m => {
-                const id = m.id;
-                const pId = m.p;
-                const slot = document.getElementById(`slot-${id}`);
-                const wire = document.getElementById(`wire-${pId}-${id}`);
-                
-                const isParentDone = pId === 0 || !!savedProgress[pId];
-                const isDone = !!savedProgress[id];
-
-                // 1. Mise à jour du noeud
-                if (!isParentDone) {
-                    slot.className = `node-slot locked ${m.e ? 'epic' : ''}`;
-                } else {
-                    slot.className = `node-slot ${m.e ? 'epic' : ''} ${isDone ? 'completed' : ''}`;
-                }
-
-                // 2. Mise à jour propre de la Redstone
-                if (wire) {
-                    if (isParentDone && isDone) {
-                        wire.classList.add('active');
-                    } else {
-                        wire.classList.remove('active');
-                    }
-                }
-            });
-        }
-
-        function handleNodeClick(id, event) {
-            const mission = rawMissions.find(m => m.id === id);
-            const isParentDone = mission.p === 0 || !!savedProgress[mission.p];
-
-            // Animation de refus si bloqué
-            if (!isParentDone) {
-                const el = document.getElementById(`slot-${id}`);
-                el.classList.add('shaking');
-                setTimeout(() => el.classList.remove('shaking'), 300);
-                return; 
-            }
-
-            // Bascule
-            savedProgress[id] = !savedProgress[id];
-            
-            if (savedProgress[id]) {
-                spawnParticles(event.clientX, event.clientY);
-            } else {
-                lockChildrenCascade(id);
-            }
-
-            localStorage.setItem('mc_100_v2', JSON.stringify(savedProgress));
-            
-            updateVisuals();
-            updateHUD();
-            showTooltip(event, mission); // Rafraichir le texte du tooltip
-        }
-
-        function lockChildrenCascade(parentId) {
-            rawMissions.forEach(m => {
-                if(m.p === parentId && savedProgress[m.id]) {
-                    savedProgress[m.id] = false;
-                    lockChildrenCascade(m.id);
-                }
-            });
-        }
-
-        function updateHUD() {
-            const count = Object.keys(savedProgress).filter(k => k !== "0" && savedProgress[k]).length;
-            document.getElementById('xpBar').style.width = `${count}%`;
-            document.getElementById('statsText').innerText = `DÉFIS COMPLÉTÉS: ${count} / 100 (NIVEAU ${count})`;
-        }
-
-        // --- TOOLTIP ---
-        function showTooltip(e, m) {
-            const isParentDone = m.p === 0 || !!savedProgress[m.p];
-            const isDone = !!savedProgress[m.id];
-            
-            const st = document.getElementById('tt-status');
-            if (!isParentDone) {
-                st.innerText = "🔒 VERROUILLÉ (Complétez la mission d'avant)";
-                st.className = "tt-status lock";
-            } else if (isDone) {
-                st.innerText = "✔ MISSION ACCOMPLIE";
-                st.className = "tt-status done";
-            } else {
-                st.innerText = "⭐ DÉFI DISPONIBLE";
-                st.className = "tt-status ready";
-            }
-
-            document.getElementById('tt-title').innerText = m.t;
-            document.getElementById('tt-desc').innerText = m.d;
-            document.getElementById('tt-details').innerText = m.dt;
-
-            tooltip.style.opacity = '1';
-            
-            const moveTooltip = (ev) => {
-                // Ajuster si on sort de l'écran à droite ou en bas
-                let x = ev.clientX + 20;
-                let y = ev.clientY + 20;
-                if(x + 320 > window.innerWidth) x = ev.clientX - 340;
-                if(y + 200 > window.innerHeight) y = ev.clientY - 220;
-                
-                tooltip.style.left = `${x}px`;
-                tooltip.style.top = `${y}px`;
-            };
-            moveTooltip(e);
-            window.addEventListener('mousemove', moveTooltip);
-            tooltip.moveFn = moveTooltip; 
-        }
-
-        function hideTooltip() {
-            tooltip.style.opacity = '0';
-            if (tooltip.moveFn) window.removeEventListener('mousemove', tooltip.moveFn);
-        }
-
-        // --- PARTICULES ---
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-
-        function resizeCanvas() {
-            canvas.width = document.getElementById('map-container').clientWidth;
-            canvas.height = document.getElementById('map-container').clientHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-
-        function spawnParticles(screenX, screenY) {
-            const rect = container.getBoundingClientRect();
-            const mapX = (screenX - rect.left) / currentScale;
-            const mapY = (screenY - rect.top) / currentScale;
-
-            for(let i=0; i<40; i++) {
-                particles.push({
-                    x: mapX, y: mapY,
-                    vx: (Math.random() - 0.5) * 16,
-                    vy: (Math.random() - 0.5) * 16 - 6,
-                    life: 1,
-                    color: Math.random() > 0.5 ? '#80ff20' : '#ffff55'
-                });
-            }
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for(let i = particles.length - 1; i >= 0; i--) {
-                let p = particles[i];
-                p.x += p.vx; p.y += p.vy;
-                p.vy += 0.5;
-                p.life -= 0.02;
-                if (p.life <= 0) {
-                    particles.splice(i, 1);
-                } else {
-                    ctx.fillStyle = p.color;
-                    ctx.globalAlpha = p.life;
-                    ctx.fillRect(p.x, p.y, 8, 8);
-                }
-            }
-            ctx.globalAlpha = 1;
-            requestAnimationFrame(animateParticles);
-        }
-
-        // --- CAMÉRA ---
-        const viewport = document.getElementById('viewport');
-        const container = document.getElementById('map-container');
-        let isDragging = false, startX, startY, transX = 0, transY = 0, currentScale = 1;
-
-        viewport.addEventListener('mousedown', (e) => {
-            if(e.target.closest('.node-slot') || e.target.closest('.btn')) return; 
-            isDragging = true;
-            startX = e.clientX - transX;
-            startY = e.clientY - transY;
-            document.body.style.cursor = 'grabbing';
+        // 1. Loader
+        window.addEventListener('load', () => { 
+            setTimeout(() => { 
+                document.getElementById('preloader').style.transform = 'translateY(-100%)'; 
+            }, 800); 
         });
 
-        window.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            transX = e.clientX - startX;
-            transY = e.clientY - startY;
-            applyTransform();
-            hideTooltip();
-        });
+        // 2. Animations au scroll (Apparition)
+        const observer = new IntersectionObserver((entries) => { 
+            entries.forEach(entry => { 
+                if (entry.isIntersecting) entry.target.classList.add('active'); 
+            }); 
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-        window.addEventListener('mouseup', () => { isDragging = false; document.body.style.cursor = 'default'; });
-        window.addEventListener('mouseleave', () => { isDragging = false; hideTooltip(); document.body.style.cursor = 'default'; });
-
-        viewport.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            zoomMap(e.deltaY * -0.001);
-        }, { passive: false });
-
-        function zoomMap(delta) {
-            currentScale += delta;
-            currentScale = Math.min(Math.max(0.3, currentScale), 2.5);
-            applyTransform();
-        }
-
-        function centerMap() {
-            const targetX = 10 * GRID_X;
-            const targetY = 15 * GRID_Y;
-            transX = (viewport.clientWidth / 2) - (targetX * currentScale);
-            transY = (viewport.clientHeight / 2) - (targetY * currentScale);
-            applyTransform();
-        }
-
-        function applyTransform() {
-            container.style.transform = `translate(${transX}px, ${transY}px) scale(${currentScale})`;
-        }
-
-        // --- DÉMARRAGE ---
-        initMap();
-        resizeCanvas();
-        animateParticles();
-        setTimeout(centerMap, 50);
-
+        // Note: L'effet de parallaxe a été retiré pour ne pas casser l'alignement Titre/Image
     </script>
 </body>
 </html>
